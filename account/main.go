@@ -45,3 +45,11 @@ func NewFromTextKey(text_key string) (*Account, error) {
 
 	return a, nil
 }
+
+func (a Account) GetInterval() (uint) {
+	if a.Interval == nil || *a.Interval == 0 {
+		return 30
+	} else {
+		return *a.Interval
+	}
+}
