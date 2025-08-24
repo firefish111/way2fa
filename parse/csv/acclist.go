@@ -2,11 +2,11 @@ package csv
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"github.com/gocarina/gocsv"
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/parse"
+	"github.com/gocarina/gocsv"
+	"os"
+	"path/filepath"
 )
 
 // Implementation of AccountList interface
@@ -19,7 +19,7 @@ func (c CsvParser) GetAccs() ([]account.Account, error) {
 
 	defer f.Close() // wait until end of function to close
 
-        var out []account.Account
+	var out []account.Account
 
 	if err := gocsv.UnmarshalFile(f, &out); err != nil {
 		return nil, err
@@ -36,4 +36,4 @@ func (c CsvParser) GetSource() (parse.DataSource, string) {
 	}
 }
 
-func (c CsvParser) WriteAccs(to_write []account.Account) { }
+func (c CsvParser) WriteAccs(to_write []account.Account) {}

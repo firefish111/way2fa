@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/firefish111/way2fa/parse/csv"
-	"time"
+	"github.com/firefish111/way2fa/ui"
+	"os"
 )
 
 const (
@@ -35,22 +37,14 @@ func main() {
 		panic(err)
 	}
 
-	accs, err := store.GetAccs()
+	model, err := ui.Create(*store)
 	if err != nil {
 		panic(err)
 	}
 
-	curr_time := uint64(time.Now().Unix())
-
-	srct, srcs := store.GetSource()
-	fmt.Printf("%d: %s\n", srct, srcs)
-
-	for _, acc := range accs {
-		code, err := acc.GenKey(curr_time / uint64(acc.GetInterval()))
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("%s <@%s> : %d\n", acc.Name, acc.AcctId, code)
+	prog := tea.NewProgram(model)
+	if _, err := prog.Run(); err != nil {
+		fmt.Printf("Error: %v", err)
+		os.Exit(1)
 	}
 }

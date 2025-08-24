@@ -10,6 +10,7 @@ const (
 
 // Where the data was obtained from
 type DataSource uint
+
 const (
 	NamedSource DataSource = iota
 	FileSource

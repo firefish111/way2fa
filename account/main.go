@@ -3,17 +3,18 @@ package account
 import (
 	"crypto/hmac"
 	"crypto/sha1"
-	"encoding/binary"
 	"encoding/base32"
+	"encoding/binary"
 )
 
 type RawKey []byte
+
 // All fields must be public because of the marshaller
 type Account struct {
-	Name string `csv:"name"`
-	AcctId string `csv:"acc_id"`
-	Interval *uint `csv:"interv"`
-	Key RawKey `csv:"key"`
+	Name     string `csv:"name"`
+	AcctId   string `csv:"acc_id"`
+	Interval *uint  `csv:"interv"`
+	Key      RawKey `csv:"key"`
 }
 
 func (a Account) GenKey(nth uint64) (uint32, error) {
@@ -46,7 +47,7 @@ func NewFromTextKey(text_key string) (*Account, error) {
 	return a, nil
 }
 
-func (a Account) GetInterval() (uint) {
+func (a Account) GetInterval() uint {
 	if a.Interval == nil || *a.Interval == 0 {
 		return 30
 	} else {

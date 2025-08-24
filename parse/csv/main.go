@@ -2,9 +2,9 @@ package csv
 
 import (
 	"fmt"
-	"path/filepath"
-	"github.com/kirsle/configdir"
 	"github.com/firefish111/way2fa/parse"
+	"github.com/kirsle/configdir"
+	"path/filepath"
 )
 
 const (
@@ -13,9 +13,9 @@ const (
 
 // implements AccountList
 type CsvParser struct {
-	path string
+	path           string
 	isDefaultStore bool
-	password *string
+	password       *string
 }
 
 func getDefaultCsv() (*CsvParser, error) {
@@ -25,13 +25,13 @@ func getDefaultCsv() (*CsvParser, error) {
 		return nil, fmt.Errorf("cannot create config directory %s: %w", cpath, err)
 	}
 
-	return &CsvParser {
+	return &CsvParser{
 		path: filepath.Join(
 			cpath,
 			CsvFilename,
 		),
 		isDefaultStore: true,
-		password: nil,
+		password:       nil,
 	}, nil
 }
 
@@ -41,10 +41,10 @@ func getFileByName(path string) (*CsvParser, error) {
 		return nil, err
 	}
 
-	return &CsvParser {
-		path: p,
+	return &CsvParser{
+		path:           p,
 		isDefaultStore: false,
-		password: nil,
+		password:       nil,
 	}, nil
 }
 
