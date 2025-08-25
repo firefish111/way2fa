@@ -37,13 +37,14 @@ func main() {
 		panic(err)
 	}
 
+	// call the ui
 	model, err := ui.Create(*store)
 	if err != nil {
 		panic(err)
 	}
 
 	prog := tea.NewProgram(model)
-	if _, err := prog.Run(); err != nil {
+	if _, err := prog.Run(); err != nil { // do the running
 		fmt.Printf("Error: %v", err)
 		os.Exit(1)
 	}

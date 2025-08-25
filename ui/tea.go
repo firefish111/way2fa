@@ -3,15 +3,14 @@ package ui
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+
 	"github.com/firefish111/way2fa/parse"
 
-	"fmt"
 	"strings"
 	"time"
 )
 
-// tea's Msg is actually an empty interface, that simply gets passed on to Update.
+// tea's Msg is actually an empty interface, so you can pass anything you want to Update.
 type TickMsg time.Time
 
 func tick() tea.Cmd {
@@ -20,7 +19,7 @@ func tick() tea.Cmd {
 	})
 }
 
-// TODO: this could be important in the future
+// XXX: this could be important in the future
 func (m model) Init() tea.Cmd {
 	return tick() // first tick.
 }
@@ -31,12 +30,12 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
 		switch event.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c", "q", "esc":
 			return m, tea.Quit // bye bye
 		case "p":
 			m.peek = !m.peek
 		}
-	case TickMsg: // outr own custom tick
+	case TickMsg: // our own custom tick message struct (just a typedef)
 		return m, tick() // tick again. this will be executed, and after it times out, update will be called again
 	}
 
@@ -47,7 +46,7 @@ var source = lipgloss.NewStyle().
 	Bold(true).
 	Align(lipgloss.Center).
 	Foreground(lipgloss.Color("159")).
-	Background(lipgloss.Color("1")).
+	Background(lipgloss.Color("88")).
 	Padding(0, 1).
 	Margin(0, 1)
 
@@ -59,6 +58,9 @@ var app_name = lipgloss.NewStyle().
 var faint = lipgloss.NewStyle().
 	Faint(true).
 	Foreground(lipgloss.Color("242"))
+
+var marg = lipgloss.NewStyle().
+	MarginLeft(4)
 
 // Spit it out
 func (m model) View() string {
@@ -83,80 +85,16 @@ func (m model) View() string {
 
 	s.WriteRune('\n')
 
-	curr_time := uint64(time.Now().Unix())
+	// separated the table generation code away from here, see ./table.go
+	s.WriteString(marg.Render(m.getTable().String()))
 
-	otps := make([][]string, len(m.accs))
-	timeout_cols := make([]string, len(m.accs))
-	for i, acc := range m.accs {
-		var skey string
-		k, err := acc.GenKey(curr_time / uint64(acc.GetInterval()))
-		if err == nil {
-			skey = fmt.Sprintf("%03d %03d", k/1000, k%1000)
-		} else {
-			skey = " ERROR "
-		}
+	s.WriteRune('\n')
+	s.WriteRune(' ')
 
-		id := ""
-		if acc.AcctId != "" {
-			id = fmt.Sprintf("<@%s>", acc.AcctId)
-		}
+	helpview := m.helpModel.View(m) // using self as a help model to acces internal state
+	s.WriteString(helpview)
 
-		// how many seconds until next
-		leftover_secs := acc.GetInterval() - (uint(curr_time) % acc.GetInterval())
-
-		otps[i] = []string{
-			acc.Name,
-			id,
-			skey,
-			fmt.Sprintf("%02ds", leftover_secs)}
-
-		switch {
-		case leftover_secs < 5:
-			timeout_cols[i] = "9"
-		case leftover_secs < 10:
-			timeout_cols[i] = "11"
-		default:
-			timeout_cols[i] = "10"
-		}
-
-		if m.peek {
-			k, err = acc.GenKey(curr_time/uint64(acc.GetInterval()) + 1)
-			if err == nil {
-				skey = fmt.Sprintf("%03d %03d", k/1000, k%1000)
-			} else {
-				skey = " ERROR "
-			}
-
-			otps[i] = append(otps[i], skey)
-		}
-	}
-
-	tab := table.New().
-		Border(lipgloss.HiddenBorder()).
-		Rows(otps...).
-		StyleFunc(func(row, col int) lipgloss.Style { // styler
-			style := lipgloss.NewStyle().Bold(true)
-
-			switch col {
-			case 0: // username
-				style = style.Foreground(lipgloss.Color("14"))
-			case 1: // account id
-				style = style.Foreground(lipgloss.Color("12"))
-			case 2: // code
-				style = style.Foreground(lipgloss.Color("15"))
-			case 3: // time
-				style = style.Foreground(lipgloss.Color(timeout_cols[row])).
-					Padding(0, 2)
-			case 4: // peek
-				style = style.Foreground(lipgloss.Color("230")).
-					UnsetBold().
-					Italic(true)
-			}
-
-			return style
-		})
-
-	s.WriteString(tab.String())
+	s.WriteRune('\n')
 
 	return s.String()
 }
