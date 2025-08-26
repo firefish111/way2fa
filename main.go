@@ -4,15 +4,15 @@ import (
 	"flag"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/firefish111/way2fa/internal/ui"
 	"github.com/firefish111/way2fa/parse/csv"
-	"github.com/firefish111/way2fa/ui"
 	"os"
 )
 
 const (
 	VersionMajor = 0
 	VersionMinor = 2
-	VersionPatch = 0
+	VersionPatch = 1
 )
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 		panic(err)
 	}
 
-	prog := tea.NewProgram(model)
+	prog := tea.NewProgram(model, tea.WithAltScreen())
 	if _, err := prog.Run(); err != nil { // do the running
 		fmt.Printf("Error: %v", err)
 		os.Exit(1)

@@ -3,10 +3,40 @@ package ui
 import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/firefish111/way2fa/parse"
 
 	"fmt"
+	"strings"
 	"time"
 )
+
+// write OTPs page.
+func (m model) writeOTPs(s *strings.Builder) {
+	s.WriteString(
+		app_name.Render("way2fa") +
+			faint.Render(" - My TOTPs: "))
+
+	{
+		srct, srcs := m.reader.GetSource()
+
+		style := source
+		if srct == parse.FileSource {
+			style = style.Background(lipgloss.Color("22"))
+		}
+
+		s.WriteString(style.Render(srcs))
+	}
+
+	s.WriteRune('\n')
+
+	// separated the table generation code away from here, see ./table.go
+	s.WriteString(marg.Render(m.getTable().String()))
+}
+
+var hi_acct = lipgloss.NewStyle().Foreground(lipgloss.Color("69")).Bold(true)
+var lo_acct = lipgloss.NewStyle().Foreground(lipgloss.Color("25"))
+
+var ditto = lipgloss.NewStyle().Align(lipgloss.Center).Foreground(lipgloss.Color("33"))
 
 // This is the generator for the actual account table.
 func (m model) getTable() *table.Table {
@@ -26,7 +56,12 @@ func (m model) getTable() *table.Table {
 
 		id := ""
 		if acc.AcctId != "" {
-			id = fmt.Sprintf("<@%s>", acc.AcctId)
+			pre, post, ok := strings.Cut(acc.AcctId, "@") // make email addresses a bit cleaner
+			if ok {
+				id = fmt.Sprintf("%s%s%s", hi_acct.Render(pre), lo_acct.Render("@"), hi_acct.Render(post))
+			} else {
+				id = fmt.Sprintf("%s%s", lo_acct.Render("@"), hi_acct.Render(pre))
+			}
 		}
 
 		// how many seconds until next
@@ -36,7 +71,7 @@ func (m model) getTable() *table.Table {
 			acc.Name,
 			id,
 			skey,
-			fmt.Sprintf("%02ds", leftover_secs) }
+			fmt.Sprintf("%02ds", leftover_secs)}
 
 		// setting the colour of the time. this is done separately, but we save the colours
 		switch {
@@ -83,9 +118,14 @@ func (m model) getTable() *table.Table {
 
 			switch col {
 			case 0: // username
-				style = style.Foreground(lipgloss.Color("14"))
+				if row > 0 && otps[row][col] == otps[row-1][col] {
+					style = style.Foreground(lipgloss.Color("6")).Bold(false)
+				} else {
+					style = style.Foreground(lipgloss.Color("14"))
+				}
 			case 1: // account id
-				style = style.Foreground(lipgloss.Color("12"))
+				// ignore: style is already set
+				style = style.Bold(false) // undo
 			case 2: // code
 				style = style.Foreground(lipgloss.Color("15"))
 			case 3: // time
@@ -99,6 +139,6 @@ func (m model) getTable() *table.Table {
 
 			return style
 		})
-	
+
 	return tab
 }

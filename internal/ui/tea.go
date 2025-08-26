@@ -4,8 +4,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/firefish111/way2fa/parse"
-
 	"strings"
 	"time"
 )
@@ -29,11 +27,20 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	// event is whatever tea wants us to respond, we need to see what it is
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
-		switch event.String() {
-		case "ctrl+c", "q", "esc":
-			return m, tea.Quit // bye bye
-		case "p":
-			m.peek = !m.peek
+		if !m.create {
+			switch event.String() {
+			case "ctrl+c", "q":
+				return m, tea.Quit // bye bye
+			case "n":
+				m.create = true
+			case "p":
+				m.peek = !m.peek
+			}
+		} else {
+			switch event.String() {
+			case "esc":
+				m.create = false
+			}
 		}
 	case TickMsg: // our own custom tick message struct (just a typedef)
 		return m, tick() // tick again. this will be executed, and after it times out, update will be called again
@@ -62,31 +69,25 @@ var faint = lipgloss.NewStyle().
 var marg = lipgloss.NewStyle().
 	MarginLeft(4)
 
+var wip = lipgloss.NewStyle().
+	Margin(1, 2).
+	Padding(1, 2).
+	Background(lipgloss.Color("239")).
+	Foreground(lipgloss.Color("15")).
+	Bold(true)
+
 // Spit it out
 func (m model) View() string {
 	var s strings.Builder
 
 	s.WriteRune('\n')
 
-	s.WriteString(
-		app_name.Render("way2fa") +
-			faint.Render(" - My TOTPs: "))
-
-	{
-		srct, srcs := m.reader.GetSource()
-
-		style := source
-		if srct == parse.FileSource {
-			style = style.Background(lipgloss.Color("22"))
-		}
-
-		s.WriteString(style.Render(srcs))
+	switch {
+	case m.create:
+		m.writeCreate(&s)
+	default:
+		m.writeOTPs(&s)
 	}
-
-	s.WriteRune('\n')
-
-	// separated the table generation code away from here, see ./table.go
-	s.WriteString(marg.Render(m.getTable().String()))
 
 	s.WriteRune('\n')
 	s.WriteRune(' ')
