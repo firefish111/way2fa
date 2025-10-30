@@ -1,4 +1,12 @@
-package csv
+// This package decodes files in "pure" csv form, that is a csv file
+// with no encryption, encoding or headers.
+//
+// As is probably guessable, this is horrendously insecure, as all you
+// need is an infostealer to empty your AppData, ~/.config, or equivalent
+// and all your accounts are compromised.
+// 
+// TODO: make whatever it is warn you when you use this that it is insecure
+package csv_pure
 
 import (
 	"fmt"
@@ -8,47 +16,45 @@ import (
 )
 
 const (
-	CsvFilename = "keys.csv"
+	CsvPureExt = ".csv"
+	CsvPureFilename = "keys" + CsvPureExt
 )
 
 // implements AccountList
-type CsvParser struct {
+type CsvPure struct {
 	path           string
 	isDefaultStore bool
-	password       *string
 }
 
-func getDefaultCsv() (*CsvParser, error) {
+func getDefaultCsv() (*CsvPure, error) {
 	cpath := configdir.LocalConfig(parse.ConfigDirName)
 	// force directory to exist
 	if err := configdir.MakePath(cpath); err != nil {
 		return nil, fmt.Errorf("cannot create config directory %s: %w", cpath, err)
 	}
 
-	return &CsvParser{
+	return &CsvPure{
 		path: filepath.Join(
 			cpath,
-			CsvFilename,
+			CsvPureFilename,
 		),
 		isDefaultStore: true,
-		password:       nil,
 	}, nil
 }
 
-func getFileByName(path string) (*CsvParser, error) {
+func getFileByName(path string) (*CsvPure, error) {
 	p, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CsvParser{
+	return &CsvPure{
 		path:           p,
 		isDefaultStore: false,
-		password:       nil,
 	}, nil
 }
 
-func GetFile(name *string) (*CsvParser, error) {
+func GetFile(name *string) (*CsvPure, error) {
 	if name != nil {
 		return getFileByName(*name)
 	} else {

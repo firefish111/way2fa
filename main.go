@@ -3,16 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/firefish111/way2fa/internal/ui"
-	"github.com/firefish111/way2fa/parse/csv"
-	"os"
+	"github.com/firefish111/way2fa/parse/csv_pure"
 )
 
 const (
 	VersionMajor = 0
-	VersionMinor = 2
-	VersionPatch = 1
+	VersionMinor = 3
+	VersionPatch = -1
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 		name = &a[0]
 	}
 
-	store, err := csv.GetFile(name)
+	store, err := csv_pure.GetFile(name)
 	if err != nil {
 		panic(err)
 	}
