@@ -12,7 +12,7 @@ import (
 
 // Implementation of AccountList interface
 
-func (c CsvPure) GetAccs() ([]account.Account, error) {
+func (c *CsvPure) GetAccs() ([]account.Account, error) {
 	if !c.IsDecrypted() {
 		return nil, parse.NotDecrypted("get Accounts")
 	}
@@ -34,7 +34,7 @@ func (c CsvPure) GetAccs() ([]account.Account, error) {
 	return out, nil
 }
 
-func (c CsvPure) GetSource() (parse.DataSource, string) {
+func (c *CsvPure) GetSource() (parse.DataSource, string) {
 	if c.isDefaultStore {
 		return parse.NamedSource, "<default unencrypted CSV>"
 	} else {
@@ -42,7 +42,11 @@ func (c CsvPure) GetSource() (parse.DataSource, string) {
 	}
 }
 
-func (c CsvPure) WriteAccs(to_write []account.Account) error {
+func (c *CsvPure) GetSourceFilePath() string {
+	return filepath.Clean(c.path)
+}
+
+func (c *CsvPure) WriteAccs(to_write []account.Account) error {
 	if !c.IsDecrypted() {
 		return parse.NotDecrypted("write Accounts")
 	}

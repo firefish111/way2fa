@@ -7,7 +7,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/firefish111/way2fa/internal/ui"
-	"github.com/firefish111/way2fa/parse/csv_pure"
+	"github.com/firefish111/way2fa/parse"
+	"github.com/firefish111/way2fa/parse/detector"
 )
 
 const (
@@ -33,13 +34,21 @@ func main() {
 		name = &a[0]
 	}
 
-	store, err := csv_pure.GetFile(name)
+	// deal with the fact that config dir may not be real
+	err := parse.InitConfPath()
 	if err != nil {
 		panic(err)
 	}
 
+	// store is the automatic detector
+	store := detector.Detect(name)
+	if store == nil {
+		fmt.Fprintf(os.Stderr, "Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", parse.ConfPath)
+		return
+	}
+
 	// call the ui
-	model, err := ui.Create(*store)
+	model, err := ui.Create(store)
 	if err != nil {
 		panic(err)
 	}

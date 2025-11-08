@@ -4,10 +4,6 @@ import (
 	"github.com/firefish111/way2fa/account"
 )
 
-const (
-	ConfigDirName string = "way2fa"
-)
-
 // Where the data was obtained from
 type DataSource uint
 
@@ -20,10 +16,10 @@ const (
 // merely how to retrieve them from and place them back into some store.
 // This allows us to abstract all the file reading code behind this interface.
 //
-// This also does, as a by-product, some error-checking. Any problems flagged by Validate constitute *format issues*,
+// This also does, as a by-product, some error-checking. Any problems flagged by Validate constitute *detection issues*,
 // whereas anything by GetAccs constitutes *content errors*.
 //
-// Format issues are NOT errors, and ought not be treated as such.
+// detection issues are NOT errors, and ought not be treated as such.
 type AccountList interface {
 	// Retrieve accounts from storage
 	GetAccs() ([]account.Account, error)
@@ -31,10 +27,24 @@ type AccountList interface {
 	// Returns a string detailing the source of the data, to go on the titlebar
 	GetSource() (DataSource, string)
 
+	// Returns a string containing the path of the file this is attached to.
+	GetSourceFilePath() string
+
 	// Write accounts to storage
 	WriteAccs(to_write []account.Account) error
 
+	// Prepopulate all fields with those of the given file.
+	// Completely erases what was already there.
+	PrepopulateWith(path string) error
+
+	// Prepopulate all fields with those of the default file.
+	// Completely erases what was already there.
+	//
+	// Designed to be used in the detector package.
+	PrepopulateDefault() error
+
 	// Detect whether the account list is of the correct format.
+	// If is a .way file then this checks whether it is of the correct subformat.
 	//
 	// NOTE: this may not necessarily mean that there are no errors in the format,
 	// only that basic header checks and filetype checks pass.

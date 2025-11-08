@@ -9,9 +9,7 @@
 package csv_pure
 
 import (
-	"fmt"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/kirsle/configdir"
 	"path/filepath"
 )
 
@@ -26,38 +24,25 @@ type CsvPure struct {
 	isDefaultStore bool
 }
 
-func getDefaultCsv() (*CsvPure, error) {
-	cpath := configdir.LocalConfig(parse.ConfigDirName)
-	// force directory to exist
-	if err := configdir.MakePath(cpath); err != nil {
-		return nil, fmt.Errorf("cannot create config directory %s: %w", cpath, err)
-	}
+func (c *CsvPure) PrepopulateDefault() error {
+	c.isDefaultStore = true // is default store
 
-	return &CsvPure{
-		path: filepath.Join(
-			cpath,
-			CsvPureFilename,
-		),
-		isDefaultStore: true,
-	}, nil
+	c.path = filepath.Join(
+		parse.ConfPath,
+		CsvPureFilename,
+	)
+
+	return nil // no way to error
 }
 
-func getFileByName(path string) (*CsvPure, error) {
+func (c *CsvPure) PrepopulateWith(path string) error {
+	c.isDefaultStore = false // is not default store
 	p, err := filepath.Abs(path)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &CsvPure{
-		path:           p,
-		isDefaultStore: false,
-	}, nil
-}
+	c.path = p
 
-func GetFile(name *string) (*CsvPure, error) {
-	if name != nil {
-		return getFileByName(*name)
-	} else {
-		return getDefaultCsv()
-	}
+	return nil
 }
