@@ -21,7 +21,13 @@ func getAllUnpopulated() []parse.AccountList {
 	}
 }
 
+// This takes a file as input, to verify the validity of.
+// This is often nil if no args are given, in which case each individual file type uses its default filename
 func Detect(path *string) parse.AccountList {
+	// TODO: this is perhaps bad, as the `.way` header tells you what filetype it is.
+	// TODO: perhaps add an IsPure() method and/or a GetHeaderIndicator() method to each AccountList instance
+	// this would make checks faster, as all the checks are done here
+
 	types := getAllUnpopulated()
 	var err error
 
@@ -33,7 +39,7 @@ func Detect(path *string) parse.AccountList {
 			err = types[i].PrepopulateWith(*path)
 		}
 
-		// henceforth, types[i] is no longer empty, unless err is nil
+		// henceforth, types[i] is no longer empty, unless err isn't nil
 
 		if err != nil { // i.e. we have no chance at being existing
 			continue

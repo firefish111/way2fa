@@ -1,6 +1,6 @@
 module github.com/firefish111/way2fa
 
-go 1.24.6
+go 1.25.4
 
 require (
 	github.com/charmbracelet/bubbles v0.21.0

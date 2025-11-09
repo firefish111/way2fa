@@ -9,7 +9,7 @@
 package csv_pure
 
 import (
-	"github.com/firefish111/way2fa/parse"
+	"github.com/firefish111/way2fa/internal/config"
 	"path/filepath"
 )
 
@@ -28,7 +28,7 @@ func (c *CsvPure) PrepopulateDefault() error {
 	c.isDefaultStore = true // is default store
 
 	c.path = filepath.Join(
-		parse.ConfPath,
+		config.ConfPath,
 		CsvPureFilename,
 	)
 

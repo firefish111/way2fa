@@ -1,4 +1,6 @@
-package parse
+// Package containing utils to read config files.
+// Since config files don't really exist yet (TODO), this is only really just a constants lib
+package config
 
 import (
 	"fmt"

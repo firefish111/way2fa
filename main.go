@@ -6,9 +6,9 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/firefish111/way2fa/detector"
+	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/internal/ui"
-	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/detector"
 )
 
 const (
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// deal with the fact that config dir may not be real
-	err := parse.InitConfPath()
+	err := config.InitConfPath()
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +43,7 @@ func main() {
 	// store is the automatic detector
 	store := detector.Detect(name)
 	if store == nil {
-		fmt.Fprintf(os.Stderr, "Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", parse.ConfPath)
+		fmt.Fprintf(os.Stderr, "Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", config.ConfPath)
 		return
 	}
 
