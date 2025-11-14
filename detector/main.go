@@ -48,7 +48,7 @@ func Detect(path *string) parse.AccountList {
 		if _, err = os.Stat(types[i].GetSourceFilePath()); err != nil { // does not exist
 			continue
 		}
-		
+
 		if !types[i].Validate() { // if is invalid
 			continue
 		}

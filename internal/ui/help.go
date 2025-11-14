@@ -15,16 +15,10 @@ import (
 
 // simple, one line help. used to show basic functions
 func (m model) ShortHelp() []key.Binding {
-	if !m.create {
-		return []key.Binding{
-			m.helpDB["newfalse"],
-			m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
-			m.helpDB["quit"],
-		}
-	} else {
-		return []key.Binding{
-			m.helpDB["newtrue"],
-		}
+	return []key.Binding{
+		m.helpDB["newfalse"],
+		m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
+		m.helpDB["quit"],
 	}
 }
 
@@ -42,8 +36,8 @@ var off = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
 func defaultHelp() map[string]key.Binding {
 	return map[string]key.Binding{
 		"newfalse": key.NewBinding(
-			key.WithKeys("n"),
-			key.WithHelp(none.Render("n"), "new TOTP"),
+			key.WithKeys("c"),
+			key.WithHelp(none.Render("c"), "create TOTP"),
 		),
 		"newtrue": key.NewBinding(
 			key.WithKeys("esc"),

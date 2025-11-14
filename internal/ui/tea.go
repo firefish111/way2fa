@@ -3,23 +3,15 @@ package ui
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/donderom/bubblon"
 
+	"github.com/firefish111/way2fa/internal/ui/msgs"
 	"strings"
-	"time"
 )
-
-// tea's Msg is actually an empty interface, so you can pass anything you want to Update.
-type TickMsg time.Time
-
-func tick() tea.Cmd {
-	return tea.Tick(time.Second, func(t time.Time) tea.Msg { // callback
-		return TickMsg(t)
-	})
-}
 
 // XXX: this could be important in the future
 func (m model) Init() tea.Cmd {
-	return tick() // first tick.
+	return msgs.Tick() // first tick.
 }
 
 // this returns the model itself, and anything we want tea to do
@@ -27,23 +19,16 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	// event is whatever tea wants us to respond, we need to see what it is
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
-		if !m.create {
-			switch event.String() {
-			case "ctrl+c", "q":
-				return m, tea.Quit // bye bye
-			case "n":
-				m.create = true
-			case "p":
-				m.peek = !m.peek
-			}
-		} else {
-			switch event.String() {
-			case "esc":
-				m.create = false
-			}
+		switch event.String() {
+		case "q":
+			return m, tea.Quit // bye bye
+		case "c":
+			return m, bubblon.Open(m.createForm)
+		case "p":
+			m.peek = !m.peek
 		}
-	case TickMsg: // our own custom tick message struct (just a typedef)
-		return m, tick() // tick again. this will be executed, and after it times out, update will be called again
+	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
+		return m, msgs.Tick() // tick again. this will be executed, and after it times out, update will be called again
 	}
 
 	return m, nil
@@ -82,12 +67,7 @@ func (m model) View() string {
 
 	s.WriteRune('\n')
 
-	switch {
-	case m.create:
-		m.writeCreate(&s)
-	default:
-		m.writeOTPs(&s)
-	}
+	m.writeOTPs(&s)
 
 	s.WriteRune('\n')
 	s.WriteRune(' ')

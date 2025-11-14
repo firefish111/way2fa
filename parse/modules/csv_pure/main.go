@@ -4,7 +4,7 @@
 // As is probably guessable, this is horrendously insecure, as all you
 // need is an infostealer to empty your AppData, ~/.config, or equivalent
 // and all your accounts are compromised.
-// 
+//
 // TODO: make whatever it is warn you when you use this that it is insecure
 package csv_pure
 
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	CsvPureExt = ".csv"
+	CsvPureExt      = ".csv"
 	CsvPureFilename = "keys" + CsvPureExt
 )
 
