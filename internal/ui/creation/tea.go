@@ -4,7 +4,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 	"github.com/donderom/bubblon"
+	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/internal/ui/msgs"
+	"strconv"
 )
 
 func (m formModel) Init() tea.Cmd {
@@ -31,13 +33,40 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.form.State == huh.StateCompleted {
-		// TODO: send a message to parent containing Account
-		return m, bubblon.Close
+		to, err := account.NewFromTextKey(keyifyKey(m.form.GetString("2fakey")))
+		if err == nil {
+			to.Name = m.form.GetString("name")
+			to.AcctId = handlifyAcctId(m.form.GetString("acctid"))
+			if intrv := m.form.GetString("interv"); len(intrv) != 0 {
+				num, err := strconv.Atoi(intrv)
+				if err == nil {
+					unum := uint(num)
+					to.Interval = &unum
+				}
+			}
+
+			return m, tea.Sequence(bubblon.Close, msgs.SendAcct(*to))
+		} else {
+			return m, bubblon.Close
+		}
 	}
 
 	return m, cmd
 }
 
 func (m formModel) View() string {
+	/*
+	   	s.WriteString(
+	   		app_name.Render("way2fa") +
+	   			faint.Render(" - New TOTP"))
+
+	   	s.WriteRune('\n')
+
+	   	s.WriteString(m.createForm.View())
+
+	   	s.WriteString(wip.Render("WIP, press esc to go back"))
+	   }
+	*/
+
 	return m.form.View()
 }

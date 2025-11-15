@@ -18,57 +18,6 @@ type formModel struct {
 
 func DefaultForm() formModel {
 	return formModel{
-		form: huh.NewForm(
-			huh.NewGroup(
-				huh.NewInput().
-					Title("Service name"),
-
-				huh.NewInput().
-					Title("Account name"),
-
-				huh.NewInput().
-					Title("2FA Key"),
-
-				huh.NewInput().
-					Title("Interval").
-					Placeholder("Default: 30"),
-
-				huh.NewConfirm().
-					Title("Create?").
-					Affirmative("Yes").
-					Negative("No"),
-			),
-
-			huh.NewGroup(
-				huh.NewNote().
-					Title("Confirmation").
-					DescriptionFunc(func() string {
-						return "This is your code: 123 456 [30s].\nPlease double check before confirming."
-					}, nil), // this nil is whatever value the above closure captures (because go closures are a bit bad)
-
-				huh.NewConfirm().
-					Title("Is this correct?").
-					Affirmative("Yes, add to list").
-					Negative("No, go back"),
-			),
-		),
+		form: blankForm(),
 	}
 }
-
-func blankForm() {
-}
-
-/*
-// write Create page.
-func (m model) writeCreate(s *strings.Builder) {
-	s.WriteString(
-		app_name.Render("way2fa") +
-			faint.Render(" - New TOTP"))
-
-	s.WriteRune('\n')
-
-	s.WriteString(m.createForm.View())
-
-	s.WriteString(wip.Render("WIP, press esc to go back"))
-}
-*/

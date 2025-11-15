@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/donderom/bubblon"
 
+	"github.com/firefish111/way2fa/internal/ui/creation"
 	"github.com/firefish111/way2fa/internal/ui/msgs"
 	"strings"
 )
@@ -23,12 +24,14 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 		case "q":
 			return m, tea.Quit // bye bye
 		case "c":
-			return m, bubblon.Open(m.createForm)
+			return m, bubblon.Open(creation.DefaultForm())
 		case "p":
 			m.peek = !m.peek
 		}
 	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
 		return m, msgs.Tick() // tick again. this will be executed, and after it times out, update will be called again
+	case msgs.NewAccMsg: // we get this from the form
+		m.accs = append(m.accs, event.Acct)
 	}
 
 	return m, nil

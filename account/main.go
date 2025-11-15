@@ -35,12 +35,14 @@ func (a Account) GenKey(nth uint64) (uint32, error) {
 	return (binary.BigEndian.Uint32(total[ix:ix+4]) & 0x7f_ff_ff_ff) % 1_000_000, nil
 }
 
-func decodeTextKey(text_key string) (RawKey, error) {
-	return base32.StdEncoding.DecodeString(text_key)
+func DecodeTextKey(text_key string) (RawKey, error) {
+	return base32.StdEncoding.
+		WithPadding(base32.NoPadding).
+		DecodeString(text_key)
 }
 
 func NewFromTextKey(text_key string) (*Account, error) {
-	key, err := decodeTextKey(text_key)
+	key, err := DecodeTextKey(text_key)
 
 	if err != nil {
 		return nil, err
