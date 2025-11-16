@@ -7,6 +7,7 @@ import (
 
 	"github.com/firefish111/way2fa/internal/ui/creation"
 	"github.com/firefish111/way2fa/internal/ui/msgs"
+	"slices"
 	"strings"
 )
 
@@ -20,18 +21,39 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	// event is whatever tea wants us to respond, we need to see what it is
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
-		switch event.String() {
-		case "q":
-			return m, tea.Quit // bye bye
-		case "c":
-			return m, bubblon.Open(creation.DefaultForm())
-		case "p":
-			m.peek = !m.peek
+		if m.dirty == nil {
+			switch event.String() {
+			case "q":
+				return m, tea.Quit // bye bye (does broadcast message, see above)
+			case "c":
+				return m, bubblon.Open(creation.DefaultForm())
+			case "p":
+				m.peek = !m.peek
+			}
+		} else {
+			switch event.String() {
+			case "n":
+				m.accs = slices.Replace(m.accs, *m.dirty, *m.dirty + 1)
+				fallthrough
+			case "y":
+				go m.reader.WriteAccs(m.accs)
+				m.dirty = nil
+			}
 		}
 	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
 		return m, msgs.Tick() // tick again. this will be executed, and after it times out, update will be called again
 	case msgs.NewAccMsg: // we get this from the form
-		m.accs = append(m.accs, event.Acct)
+		// to group them together, we tack it on the end of an existing group (if possible)
+		insert_at := len(m.accs)
+		for ai, av := range slices.Backward(m.accs) { // iterators are lazily evaluated
+			if av.Name == event.Acct.Name {
+				insert_at = ai + 1 // one after
+				break
+			}
+		}
+
+		m.dirty = &insert_at // make us show the save changes? prompt
+		m.accs = slices.Insert(m.accs, insert_at, event.Acct)
 	}
 
 	return m, nil
@@ -75,7 +97,11 @@ func (m model) View() string {
 	s.WriteRune('\n')
 	s.WriteRune(' ')
 
-	helpview := m.helpModel.View(m) // using self as a help model to acces internal state
+	if m.dirty != nil {
+		s.WriteString("Please check that the underlined code is correct.\n ")
+	}
+
+	helpview := m.helpModel.View(m) // using self as a help model to access internal state
 	s.WriteString(helpview)
 
 	s.WriteRune('\n')

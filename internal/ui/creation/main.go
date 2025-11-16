@@ -16,8 +16,9 @@ type formModel struct {
 	done bool
 }
 
-func DefaultForm() formModel {
-	return formModel{
-		form: blankForm(),
-	}
+func DefaultForm() *formModel {
+	m := new(formModel)
+	m.resetForm() // form was never initialised
+
+	return m
 }

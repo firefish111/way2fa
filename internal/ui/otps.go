@@ -33,9 +33,6 @@ func (m model) writeOTPs(s *strings.Builder) {
 	s.WriteString(marg.Render(m.getTable().String()))
 }
 
-var hi_acct = lipgloss.NewStyle().Foreground(lipgloss.Color("69")).Bold(true)
-var lo_acct = lipgloss.NewStyle().Foreground(lipgloss.Color("25"))
-
 var ditto = lipgloss.NewStyle().Align(lipgloss.Center).Foreground(lipgloss.Color("33"))
 
 // This is the generator for the actual account table.
@@ -54,22 +51,12 @@ func (m model) getTable() *table.Table {
 			skey = " ERROR " // 7 chars
 		}
 
-		id := ""
-		if acc.AcctId != "" {
-			pre, post, ok := strings.Cut(acc.AcctId, "@") // make email addresses a bit cleaner
-			if ok {
-				id = fmt.Sprintf("%s%s%s", hi_acct.Render(pre), lo_acct.Render("@"), hi_acct.Render(post))
-			} else {
-				id = fmt.Sprintf("%s%s", lo_acct.Render("@"), hi_acct.Render(pre))
-			}
-		}
-
 		// how many seconds until next
 		leftover_secs := acc.GetInterval() - (uint(curr_time) % acc.GetInterval())
 
 		otps[i] = []string{
 			acc.Name,
-			id,
+			acc.AcctId,
 			skey,
 			fmt.Sprintf("%02ds", leftover_secs)}
 
@@ -116,16 +103,29 @@ func (m model) getTable() *table.Table {
 
 			style = style.Margin(0, 2)
 
+			// if recently added
+			if m.dirty != nil && row == *m.dirty {
+				style = style.Underline(true)
+			}
+
 			switch col {
-			case 0: // username
-				if row > 0 && otps[row][col] == otps[row-1][col] {
+			case 0: // service name
+				if otps[row][col] == "" {
+					style = style.Foreground(lipgloss.Color("96")).Bold(false).Transform(func (_ string) string {
+						return "<no name>"
+					})
+				} else if row > 0 && otps[row][col] == otps[row-1][col] {
 					style = style.Foreground(lipgloss.Color("6")).Bold(false)
 				} else {
 					style = style.Foreground(lipgloss.Color("14"))
 				}
 			case 1: // account id
-				// ignore: style is already set
-				style = style.Bold(false) // undo
+				style = style.Foreground(lipgloss.Color("69"))
+				if len(otps[row][col]) > 0 && !strings.Contains(otps[row][col], "@") {
+					style = style.BorderLeft(true).
+						BorderLeftForeground(lipgloss.Color("25")).
+						BorderStyle(lipgloss.Border{ Left: "@" }) // prefix at is a border (jank)
+				}
 			case 2: // code
 				style = style.Foreground(lipgloss.Color("15"))
 			case 3: // time

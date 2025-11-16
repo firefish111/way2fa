@@ -1,11 +1,19 @@
 package creation
 
 import (
-	"github.com/firefish111/way2fa/account"
 	"fmt"
-	"strings"
+	"github.com/firefish111/way2fa/account"
 	"strconv"
+	"strings"
 )
+
+func keyifyKey(inp string) string {
+	return strings.ReplaceAll(strings.ToUpper(inp), " ", "")
+}
+
+func handlifyAcctId(inp string) string { // just in case user is stupid
+	return strings.TrimLeft(inp, "@")
+}
 
 func validateKey(inp string) error {
 	if _, err := account.DecodeTextKey(keyifyKey(inp)); err != nil {
@@ -15,22 +23,27 @@ func validateKey(inp string) error {
 	return nil
 }
 
-func keyifyKey(inp string) string {
-	return strings.ReplaceAll(strings.ToUpper(inp), " ", "")
-}
-
 func validateInterv(inp string) error {
 	if len(inp) == 0 {
 		return nil // to stop atoi from throwing all the toys out the pram
 	}
 
-	if _, err := strconv.Atoi(inp); err != nil {
-		return fmt.Errorf("Interval, must be an integer number of seconds; %w (got: %s)", err, inp)
+	n, err := strconv.Atoi(inp)
+	if err != nil {
+		return fmt.Errorf("Interval must be an integer number of seconds; %w (got: %s)", err, inp)
+	}
+
+	if n == 0 {
+		return fmt.Errorf("Interval muust be a positive integer (got %d)", n)
 	}
 
 	return nil
 }
 
-func handlifyAcctId(inp string) string { // just in case user is stupid
-	return strings.TrimLeft(inp, "@")
+func validateService(inp string) error {
+	if len(inp) == 0 {
+		return fmt.Errorf("Must supply service name")
+	}
+
+	return nil
 }
