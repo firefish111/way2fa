@@ -1,12 +1,15 @@
 package creation
 
 import (
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/donderom/bubblon"
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/internal/ui/msgs"
 	"strconv"
+	"strings"
 )
 
 func (m formModel) Init() tea.Cmd {
@@ -28,18 +31,26 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	f, cmd := m.form.Update(event)
 
 	// double check that it is actually a form (no doubt, but still)
-	if f, ok := f.(*huh.Form); ok {
-		m.form = f
+	f, ok := f.(*huh.Form)
+	if !ok { // if the form has ceased to be a form. should never happen, but being careful.
+		// i'm just waiting for the inevitable github issue "um why does it say this? help pls"
+		return m, bubblon.Fail(fmt.Error("The form has metamorphosed (bad)"))
 	}
 
-	if m.form.State == huh.StateCompleted {
+	if m.form.State == huh.StateCompleted { // if we have completed form
+		if !m.form.GetBool("confirmation") { // if told "no, go back"
+			return m, bubblon.Close // bye bye
+		}
+
+		// try and create an account from the key
 		to, err := account.NewFromTextKey(keyifyKey(m.form.GetString("2fakey")))
-		if err == nil {
+		if err == nil { // if there's no inexplicable problem with account creation
 			to.Name = m.form.GetString("name")
 			to.AcctId = handlifyAcctId(m.form.GetString("acctid"))
 			if intrv := m.form.GetString("interv"); len(intrv) != 0 {
+				// roundabout way of converting it to a *uint
 				num, err := strconv.Atoi(intrv)
-				if err == nil {
+				if err == nil { // if it fails, we don't really care cause it'll just be nil anyway
 					unum := uint(num)
 					to.Interval = &unum
 				}
@@ -47,26 +58,39 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, tea.Sequence(bubblon.Close, msgs.SendAcct(*to))
 		} else {
-			return m, bubblon.Close
+			return m, bubblon.Fail(err) // tantamount to panic
 		}
 	}
 
 	return m, cmd
 }
 
+// styles. these are copied from ../tea.go, because there seriously is no point making an extra package just for them
+var app_name = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("220")).
+	PaddingLeft(1)
+
+var faint = lipgloss.NewStyle().
+	Faint(true).
+	Foreground(lipgloss.Color("242"))
+
+var space = lipgloss.NewStyle().
+	Margin(1)
+
 func (m formModel) View() string {
-	/*
-	   	s.WriteString(
-	   		app_name.Render("way2fa") +
-	   			faint.Render(" - New TOTP"))
+	var s strings.Builder
 
-	   	s.WriteRune('\n')
+	s.WriteRune('\n')
 
-	   	s.WriteString(m.createForm.View())
+	// copied from ../tea.go for consistency's sake
+	s.WriteString(
+		app_name.Render("way2fa") +
+			faint.Render(" - New TOTP"))
 
-	   	s.WriteString(wip.Render("WIP, press esc to go back"))
-	   }
-	*/
+	s.WriteRune('\n')
 
-	return m.form.View()
+	s.WriteString(space.Render(m.form.View()))
+
+	return s.String()
 }

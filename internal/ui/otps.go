@@ -101,17 +101,33 @@ func (m model) getTable() *table.Table {
 				return style
 			}
 
+			//   0
+			// 2   2
+			//   0
 			style = style.Margin(0, 2)
 
 			// if recently added
 			if m.dirty != nil && row == *m.dirty {
 				style = style.Underline(true)
+
+				if col == 0 { // highlighting.
+					// remove marginleft we've just set, and replace it with paddingleft and an asterisk "border".
+					// see below for diagram:
+					//     0
+					// 0*1   2
+					//     0
+					style = style.MarginLeft(0).
+						PaddingLeft(1).
+						BorderLeft(true).
+						BorderLeftForeground(lipgloss.Color("199")).
+						BorderStyle(lipgloss.Border{Left: "*"}) // prefix is a border (jank)
+				}
 			}
 
 			switch col {
 			case 0: // service name
 				if otps[row][col] == "" {
-					style = style.Foreground(lipgloss.Color("96")).Bold(false).Transform(func (_ string) string {
+					style = style.Foreground(lipgloss.Color("96")).Bold(false).Transform(func(_ string) string {
 						return "<no name>"
 					})
 				} else if row > 0 && otps[row][col] == otps[row-1][col] {
@@ -121,10 +137,11 @@ func (m model) getTable() *table.Table {
 				}
 			case 1: // account id
 				style = style.Foreground(lipgloss.Color("69"))
+				// add an @ infront iff not an email (i.e. there isn't an @ already)
 				if len(otps[row][col]) > 0 && !strings.Contains(otps[row][col], "@") {
 					style = style.BorderLeft(true).
 						BorderLeftForeground(lipgloss.Color("25")).
-						BorderStyle(lipgloss.Border{ Left: "@" }) // prefix at is a border (jank)
+						BorderStyle(lipgloss.Border{Left: "@"}) // prefix '@' is a border (jank)
 				}
 			case 2: // code
 				style = style.Foreground(lipgloss.Color("15"))

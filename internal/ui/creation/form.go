@@ -31,6 +31,7 @@ func (m *formModel) resetForm() {
 				Placeholder("30 (default)"),
 
 			huh.NewConfirm().
+				Key("confirmation").
 				Title("Continue?").
 				Affirmative("Yes, add to list").
 				Negative("No, go back"),

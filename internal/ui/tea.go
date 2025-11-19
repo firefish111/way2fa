@@ -31,9 +31,19 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				m.peek = !m.peek
 			}
 		} else {
-			switch event.String() {
+			switch event.String() { // dirty is already proven to be non-nil by this point
+			case "j":
+				if *m.dirty < len(m.accs)-1 { // can we move down?
+					m.accs[*m.dirty], m.accs[*m.dirty+1] = m.accs[*m.dirty+1], m.accs[*m.dirty]
+					*m.dirty++
+				}
+			case "k":
+				if *m.dirty > 0 { // can we move up?
+					m.accs[*m.dirty], m.accs[*m.dirty-1] = m.accs[*m.dirty-1], m.accs[*m.dirty]
+					*m.dirty--
+				}
 			case "n":
-				m.accs = slices.Replace(m.accs, *m.dirty, *m.dirty + 1)
+				m.accs = slices.Replace(m.accs, *m.dirty, *m.dirty+1)
 				fallthrough
 			case "y":
 				go m.reader.WriteAccs(m.accs)
@@ -67,6 +77,7 @@ var source = lipgloss.NewStyle().
 	Padding(0, 1).
 	Margin(0, 1)
 
+// have been copied into ./creation/tea.go. if these ever change, change them there too
 var app_name = lipgloss.NewStyle().
 	Bold(true).
 	Foreground(lipgloss.Color("220")).
@@ -98,7 +109,7 @@ func (m model) View() string {
 	s.WriteRune(' ')
 
 	if m.dirty != nil {
-		s.WriteString("Please check that the underlined code is correct.\n ")
+		s.WriteString("Please check that the highlighted OTP is correct, and move it to the desired location, before proceeding.\n ")
 	}
 
 	helpview := m.helpModel.View(m) // using self as a help model to access internal state

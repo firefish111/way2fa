@@ -25,6 +25,8 @@ func (m model) ShortHelp() []key.Binding {
 		return []key.Binding{
 			m.helpDB["accept"],
 			m.helpDB["reject"],
+			m.helpDB["down"],
+			m.helpDB["up"],
 		}
 	}
 }
@@ -42,6 +44,14 @@ var off = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
 
 func defaultHelp() map[string]key.Binding {
 	return map[string]key.Binding{
+		"down": key.NewBinding(
+			key.WithKeys("j"),
+			key.WithHelp(none.Render("j"), "move down"),
+		),
+		"up": key.NewBinding(
+			key.WithKeys("k"),
+			key.WithHelp(none.Render("k"), "move up"),
+		),
 		"accept": key.NewBinding(
 			key.WithKeys("y"),
 			key.WithHelp(none.Render("y"), "accept + save"),
