@@ -36,5 +36,5 @@ func (m *formModel) resetForm() {
 				Affirmative("Yes, add to list").
 				Negative("No, go back"),
 		),
-	)
+	).WithShowHelp(false)
 }

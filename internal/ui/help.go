@@ -37,6 +37,7 @@ func (m model) FullHelp() [][]key.Binding {
 	return [][]key.Binding{m.ShortHelp()}
 }
 
+// borrowed into ./ui/help.go
 var none = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
 var peekon = lipgloss.NewStyle().Foreground(lipgloss.Color("218")).Bold(true)
 var newon = lipgloss.NewStyle().Foreground(lipgloss.Color("112")).Bold(true)

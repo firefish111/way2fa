@@ -20,7 +20,7 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
 		switch event.String() {
-		case "esc":
+		case "esc", "ctrl+c": // ctrl+c is defined, to stop it reaching the form itself, which leads to the form being inescapable
 			return m, bubblon.Close
 		}
 	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
@@ -34,7 +34,7 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	f, ok := f.(*huh.Form)
 	if !ok { // if the form has ceased to be a form. should never happen, but being careful.
 		// i'm just waiting for the inevitable github issue "um why does it say this? help pls"
-		return m, bubblon.Fail(fmt.Error("The form has metamorphosed (bad)"))
+		return m, bubblon.Fail(fmt.Errorf("The form has metamorphosed (bad)"))
 	}
 
 	if m.form.State == huh.StateCompleted { // if we have completed form
@@ -91,6 +91,8 @@ func (m formModel) View() string {
 	s.WriteRune('\n')
 
 	s.WriteString(space.Render(m.form.View()))
+
+	s.WriteString(space.Render(m.modifiedHelp()))
 
 	return s.String()
 }

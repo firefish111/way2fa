@@ -18,7 +18,7 @@ func (m model) Init() tea.Cmd {
 
 // this returns the model itself, and anything we want tea to do
 func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
-	// event is whatever tea wants us to respond, we need to see what it is
+	// event is whatever tea wants us to respond to, we need to see what it is
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
 		if m.dirty == nil {
@@ -54,10 +54,11 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 		return m, msgs.Tick() // tick again. this will be executed, and after it times out, update will be called again
 	case msgs.NewAccMsg: // we get this from the form
 		// to group them together, we tack it on the end of an existing group (if possible)
+		// this is just the default positioning, the prompt will allow user to move it
 		insert_at := len(m.accs)
-		for ai, av := range slices.Backward(m.accs) { // iterators are lazily evaluated
-			if av.Name == event.Acct.Name {
-				insert_at = ai + 1 // one after
+		for acci, accv := range slices.Backward(m.accs) { // iterators are lazily evaluated
+			if accv.Name == event.Acct.Name {
+				insert_at = acci + 1 // one after
 				break
 			}
 		}
