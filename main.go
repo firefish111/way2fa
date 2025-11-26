@@ -3,16 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/firefish111/way2fa/internal/ui"
-	"github.com/firefish111/way2fa/parse/csv"
 	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/donderom/bubblon"
+	"github.com/firefish111/way2fa/detector"
+	"github.com/firefish111/way2fa/internal/config"
+	"github.com/firefish111/way2fa/internal/ui"
 )
 
 const (
 	VersionMajor = 0
-	VersionMinor = 2
-	VersionPatch = 1
+	VersionMinor = 3
+	VersionPatch = 0
 )
 
 func main() {
@@ -32,18 +35,31 @@ func main() {
 		name = &a[0]
 	}
 
-	store, err := csv.GetFile(name)
+	// deal with the fact that config dir may not be real
+	err := config.InitConfPath()
 	if err != nil {
 		panic(err)
+	}
+
+	// store is the automatic detector
+	store := detector.Detect(name)
+	if store == nil {
+		fmt.Fprintf(os.Stderr, "Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", config.ConfPath)
+		return
 	}
 
 	// call the ui
-	model, err := ui.Create(*store)
+	model, err := ui.Create(store)
 	if err != nil {
 		panic(err)
 	}
 
-	prog := tea.NewProgram(model, tea.WithAltScreen())
+	ctrller, err := bubblon.New(model)
+	if err != nil {
+		panic(err)
+	}
+
+	prog := tea.NewProgram(ctrller, tea.WithAltScreen())
 	if _, err := prog.Run(); err != nil { // do the running
 		fmt.Printf("Error: %v", err)
 		os.Exit(1)

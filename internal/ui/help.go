@@ -15,7 +15,7 @@ import (
 
 // simple, one line help. used to show basic functions
 func (m model) ShortHelp() []key.Binding {
-	if !m.create {
+	if m.dirty == nil {
 		return []key.Binding{
 			m.helpDB["newfalse"],
 			m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
@@ -23,7 +23,10 @@ func (m model) ShortHelp() []key.Binding {
 		}
 	} else {
 		return []key.Binding{
-			m.helpDB["newtrue"],
+			m.helpDB["accept"],
+			m.helpDB["reject"],
+			m.helpDB["down"],
+			m.helpDB["up"],
 		}
 	}
 }
@@ -34,6 +37,7 @@ func (m model) FullHelp() [][]key.Binding {
 	return [][]key.Binding{m.ShortHelp()}
 }
 
+// borrowed into ./ui/help.go
 var none = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
 var peekon = lipgloss.NewStyle().Foreground(lipgloss.Color("218")).Bold(true)
 var newon = lipgloss.NewStyle().Foreground(lipgloss.Color("112")).Bold(true)
@@ -41,9 +45,25 @@ var off = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
 
 func defaultHelp() map[string]key.Binding {
 	return map[string]key.Binding{
-		"newfalse": key.NewBinding(
+		"down": key.NewBinding(
+			key.WithKeys("j"),
+			key.WithHelp(none.Render("j"), "move down"),
+		),
+		"up": key.NewBinding(
+			key.WithKeys("k"),
+			key.WithHelp(none.Render("k"), "move up"),
+		),
+		"accept": key.NewBinding(
+			key.WithKeys("y"),
+			key.WithHelp(none.Render("y"), "accept + save"),
+		),
+		"reject": key.NewBinding(
 			key.WithKeys("n"),
-			key.WithHelp(none.Render("n"), "new TOTP"),
+			key.WithHelp(none.Render("n"), "reject + remove"),
+		),
+		"newfalse": key.NewBinding(
+			key.WithKeys("c"),
+			key.WithHelp(none.Render("c"), "create TOTP"),
 		),
 		"newtrue": key.NewBinding(
 			key.WithKeys("esc"),
