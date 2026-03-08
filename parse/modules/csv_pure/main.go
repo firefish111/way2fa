@@ -35,7 +35,7 @@ func (c *CsvPure) PrepopulateDefault() error {
 	return nil // no way to error
 }
 
-func (c *CsvPure) PrepopulateWith(path string) error {
+func (c *CsvPure) PrepopulateFromFile(path string) error {
 	c.isDefaultStore = false // is not default store
 	p, err := filepath.Abs(path)
 	if err != nil {

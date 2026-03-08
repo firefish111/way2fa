@@ -35,7 +35,7 @@ type AccountList interface {
 
 	// Prepopulate all fields with those of the given file.
 	// Completely erases what was already there.
-	PrepopulateWith(path string) error
+	PrepopulateFromFile(path string) error
 
 	// Prepopulate all fields with those of the default file.
 	// Completely erases what was already there.

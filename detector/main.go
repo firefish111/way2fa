@@ -36,7 +36,7 @@ func Detect(path *string) parse.AccountList {
 		if path == nil {
 			err = types[i].PrepopulateDefault()
 		} else {
-			err = types[i].PrepopulateWith(*path)
+			err = types[i].PrepopulateFromFile(*path)
 		}
 
 		// henceforth, types[i] is no longer empty, unless err isn't nil
