@@ -28,16 +28,11 @@ type model struct {
 }
 
 func Create(list parse.AccountList) (model, error) {
-	acclist, err := list.GetAccs()
-	if err != nil {
-		return model{}, err
-	}
-
 	ret := model{
 		helpModel: help.New(),
 		helpDB:    defaultHelp(),
 		reader:    list,
-		accs:      acclist,
+		accs:      nil,
 		peek:      false,
 		dirty:     nil,
 	}

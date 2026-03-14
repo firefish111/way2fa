@@ -5,15 +5,31 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/donderom/bubblon"
 
-	"github.com/firefish111/way2fa/internal/ui/creation"
-	"github.com/firefish111/way2fa/internal/ui/msgs"
 	"slices"
 	"strings"
+
+	"github.com/firefish111/way2fa/internal/ui/creation"
+	"github.com/firefish111/way2fa/internal/ui/msgs"
+	"github.com/firefish111/way2fa/internal/ui/password"
 )
 
-// XXX: this could be important in the future
+// Initialise main UI.
+// Checks to see whether
 func (m model) Init() tea.Cmd {
-	return msgs.Tick() // first tick.
+	passwordPrompt := password.CreatePasswordPrompt(m.reader)
+
+	// this is the message that we want to send.
+	// depends on passwordPrompt's value.
+	var toSend tea.Cmd
+
+	if passwordPrompt != nil { // i.e. there is a password prompt we need to use
+		toSend = bubblon.Open(passwordPrompt)
+	} else {
+		// we have proven above that if there is no password prompt needed, then it must already be decrypted, so we send the message
+		toSend = msgs.SendEncryptor(msgs.DecryptedMsg)
+	}
+
+	return tea.Batch(toSend, msgs.Tick()) // first tick, and whatever we need to send.
 }
 
 // this returns the model itself, and anything we want tea to do
@@ -65,6 +81,14 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.dirty = &insert_at // make us show the save changes? prompt
 		m.accs = slices.Insert(m.accs, insert_at, event.Acct)
+	case msgs.EncryptorMsg: // If Encrypted
+		if event == msgs.DecryptedMsg { // decrypted! therefore retrieve data
+			var err error
+			m.accs, err = m.reader.GetAccs()
+			if err != nil {
+				return m, bubblon.Fail(err) // pass up error
+			}
+		}
 	}
 
 	return m, nil
@@ -83,6 +107,11 @@ var app_name = lipgloss.NewStyle().
 	Bold(true).
 	Foreground(lipgloss.Color("220")).
 	PaddingLeft(1)
+
+// used for the confirmation prompt
+var srvc_name = lipgloss.NewStyle().
+	Italic(true).
+	Foreground(lipgloss.Color("117"))
 
 var faint = lipgloss.NewStyle().
 	Faint(true).
@@ -110,7 +139,9 @@ func (m model) View() string {
 	s.WriteRune(' ')
 
 	if m.dirty != nil {
-		s.WriteString("Please check that the highlighted OTP is correct, and move it to the desired location, before proceeding.\n ")
+		s.WriteString("Please confirm with ")
+		s.WriteString(srvc_name.Render(m.accs[*m.dirty].Name))
+		s.WriteString(" that the highlighted OTP is correct before proceeding.\nIf you wish, you can also place in the desired order.\n ")
 	}
 
 	helpview := m.helpModel.View(m) // using self as a help model to access internal state

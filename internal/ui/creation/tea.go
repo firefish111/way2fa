@@ -28,13 +28,13 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// relay. the update function returns a new copy of self, so we replace
-	f, cmd := m.form.Update(event)
+	fmodel, cmd := m.form.Update(event)
 
 	// double check that it is actually a form (no doubt, but still)
-	f, ok := f.(*huh.Form)
-	if !ok { // if the form has ceased to be a form. should never happen, but being careful.
-		// i'm just waiting for the inevitable github issue "um why does it say this? help pls"
-		return m, bubblon.Fail(fmt.Errorf("The form has metamorphosed (bad)"))
+	if f, ok := fmodel.(*huh.Form); !ok { // if the form has ceased to be a form. should never happen, but being careful.
+		return m, bubblon.Fail(fmt.Errorf("ui: creation: form has metamorphosed"))
+	} else {
+		m.form = f
 	}
 
 	if m.form.State == huh.StateCompleted { // if we have completed form

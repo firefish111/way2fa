@@ -4,8 +4,9 @@ package msgs
 import (
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/firefish111/way2fa/account"
 	"time"
+
+	"github.com/firefish111/way2fa/account"
 )
 
 // tea's Msg is actually an empty interface, so you can pass anything you want to Update.
@@ -29,5 +30,21 @@ func SendAcct(acct account.Account) tea.Cmd {
 		return NewAccMsg{
 			Acct: acct,
 		}
+	}
+}
+
+// Enum that is broadcast whenever AccountList is encrypted/decrypted.
+type EncryptorMsg int
+
+const (
+	DecryptedMsg EncryptorMsg = iota
+	EncryptedMsg
+	AuthFailedMsg
+)
+
+// Sends the specified static Encryptor message
+func SendEncryptor(toSend EncryptorMsg) tea.Cmd {
+	return func() tea.Msg {
+		return toSend
 	}
 }
