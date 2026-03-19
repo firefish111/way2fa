@@ -10,13 +10,16 @@ import (
 	"github.com/firefish111/way2fa/parse/encryption"
 )
 
-// tries = number of tries left. starts out at 3
+// tries = how many attempts have failed. starts out at 0
 type passwordModel struct {
-	acclist     parse.AccountList
-	field       textinput.Model
-	warningOnly bool // whether to only show a warning and no password
-	tries       int
-	prev        *encryption.PasswordHash // previous password prompt, nil if only on first try
+	acclist      parse.AccountList
+	field        textinput.Model
+	warningOnly  bool // whether to only show a warning and no password
+	tries        int
+	prev         *encryption.PasswordHash // previous password prompt, nil if only on first try
+	prevRendered string                   // ditto, but a rendered string (for prompt)
+
+	supplMsg string // supplementary message, to be shown beneath the password prompt
 }
 
 // TODO: move to format??
@@ -44,7 +47,7 @@ func CreatePasswordPrompt(acclist parse.AccountList) *passwordModel {
 		acclist:     acclist,
 		field:       textbox,
 		warningOnly: false,
-		tries:       3,
+		tries:       0,
 	}
 
 	if !acclist.IsPasswordProtected() { // show a warning

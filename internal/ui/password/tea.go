@@ -1,6 +1,8 @@
 package password
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -31,26 +33,38 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
 			}
 
+			// take a closer look at the error
+			switch outerr := err.(type) {
 			// if we got a decryption error that is because the password was wrong (that is they matched, but decryption failed),
 			// then we sneakily replace the error, as that is not a fail condition: unless that happens 3 times.
 			// in which case, we replace the error with our own
-			if decErr, ok := err.(parse.DecryptError); ok {
-				if decErr.IsFaultOfPassword { // if it is the fault of the password that we got this error
+			case parse.DecryptError:
+				if outerr.IsFaultOfPassword { // if it is the fault of the password that we got this error
 					// increase try count; if we surpassed max count
 					if m.tries++; m.tries >= PasswordTriesCount {
 						err = PromptError{PromptErrorType: OutOfTries}
 					} else {
 						err = nil // we don't want to pass up password fails
 					}
+
+					// tries have actually increased, so:
+					m.supplMsg = fmt.Sprintf("Password incorrect. Please try again.\n\tAttempt %d of %d", m.tries+1, PasswordTriesCount)
+				}
+			case PromptError:
+				// if passwords don't match: we ignore error.
+				if outerr.PromptErrorType == NotMatch {
+					m.supplMsg = "Passwords didn't match, please try again"
+					// TODO: may want to do something with this later
+					err = nil
 				}
 			}
 
-			// pass up error iff we need to
+			// pass up error if we need to
 			if err != nil {
 				return m, bubblon.Fail(err)
 			}
 
-			// otherwise, after sumbit, we clear input field
+			// otherwise, after submit, we clear input field
 			m.field.Reset()
 		}
 	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
@@ -73,14 +87,36 @@ var box = lipgloss.NewStyle().
 
 var title = lipgloss.NewStyle().
 	Bold(true).
-	Foreground(lipgloss.Color("162"))
+	Foreground(lipgloss.Color("157"))
+
+var supplement = lipgloss.NewStyle().
+	Italic(true).
+	Padding(2, 4).
+	Foreground(lipgloss.Color("9"))
+
+// copied from ..
+var faint = lipgloss.NewStyle().
+	Faint(true).
+	Foreground(lipgloss.Color("242"))
 
 func (m passwordModel) View() string {
 	var s strings.Builder
 
-	s.WriteString(title.Render("Password: "))
+	// whether this is first or second entering
+	if m.prev == nil { // prevRendered is ignored, cause it's useless without prev
+		s.WriteString(title.Render("Enter password: "))
+	} else {
+		s.WriteString(title.Render("Confirm password: "))
+		s.WriteRune('\n')
+		s.WriteString(faint.Render(m.prevRendered))
+	}
 	s.WriteRune('\n')
 	s.WriteString(m.field.View())
+
+	// if we have something to say?
+	if m.supplMsg != "" {
+		s.WriteString(supplement.Render(m.supplMsg))
+	}
 
 	return box.Render(s.String())
 }

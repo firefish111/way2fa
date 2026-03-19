@@ -60,8 +60,19 @@ func main() {
 	}
 
 	prog := tea.NewProgram(ctrller, tea.WithAltScreen())
-	if _, err := prog.Run(); err != nil { // do the running
-		fmt.Printf("Error: %v", err)
+	doneModel, err := prog.Run() // as for why `doneModel`, see below
+
+	if err != nil { // do the running
+		fmt.Printf("Error running model:\n\t%v\n", err)
+		os.Exit(1)
+	}
+
+	// tea.NewProgram copies the model it takes.
+	// prog.Run() returns the model after it's done with it, but as an interface, which needs to be upcasted,
+	// hence why we use another variable `doneModel`
+	ctrller = doneModel.(bubblon.Controller)
+	if ctrller.Err != nil { // when bubblon.Fail is called, the error is put in Err, so it can gracefully exit tea
+		fmt.Printf("Runtime error during model execution:\n\t%v\n", ctrller.Err)
 		os.Exit(1)
 	}
 }
