@@ -6,7 +6,7 @@ import (
 
 // Custom error type.
 type (
-	PromptErrorType int
+	PromptErrorType uint
 	PromptError     struct {
 		PromptErrorType
 		passlen int

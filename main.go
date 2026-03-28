@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/donderom/bubblon"
@@ -44,8 +43,7 @@ func main() {
 	// store is the automatic detector
 	store := detector.Detect(name)
 	if store == nil {
-		fmt.Fprintf(os.Stderr, "Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", config.ConfPath)
-		return
+		panic(fmt.Errorf("Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", config.ConfPath))
 	}
 
 	// call the ui
@@ -63,8 +61,7 @@ func main() {
 	doneModel, err := prog.Run() // as for why `doneModel`, see below
 
 	if err != nil { // do the running
-		fmt.Printf("Error running model:\n\t%v\n", err)
-		os.Exit(1)
+		panic(fmt.Errorf("Error running model:\n\t%w\n", err))
 	}
 
 	// tea.NewProgram copies the model it takes.
@@ -72,7 +69,6 @@ func main() {
 	// hence why we use another variable `doneModel`
 	ctrller = doneModel.(bubblon.Controller)
 	if ctrller.Err != nil { // when bubblon.Fail is called, the error is put in Err, so it can gracefully exit tea
-		fmt.Printf("Runtime error during model execution:\n\t%v\n", ctrller.Err)
-		os.Exit(1)
+		panic(fmt.Errorf("Runtime error during model execution:\n\t%w\n", ctrller.Err))
 	}
 }

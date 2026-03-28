@@ -99,14 +99,35 @@ var faint = lipgloss.NewStyle().
 	Faint(true).
 	Foreground(lipgloss.Color("242"))
 
+var source = lipgloss.NewStyle().
+	Bold(true).
+	Align(lipgloss.Center).
+	Foreground(lipgloss.Color("159")).
+	Background(lipgloss.Color("88")).
+	Padding(0, 1).
+	Margin(0, 1)
+
+func (m passwordModel) putSrc(s *strings.Builder) {
+	srct, srcs := m.acclist.GetSource()
+
+	style := source
+	if srct == parse.FileSource {
+		style = style.Background(lipgloss.Color("22"))
+	}
+
+	s.WriteString(style.Render(srcs))
+}
+
 func (m passwordModel) View() string {
 	var s strings.Builder
 
 	// whether this is first or second entering
 	if m.prev == nil { // prevRendered is ignored, cause it's useless without prev
 		s.WriteString(title.Render("Enter password: "))
+		m.putSrc(&s)
 	} else {
 		s.WriteString(title.Render("Confirm password: "))
+		m.putSrc(&s)
 		s.WriteRune('\n')
 		s.WriteString(faint.Render(m.prevRendered))
 	}

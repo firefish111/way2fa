@@ -15,7 +15,7 @@ type passwordModel struct {
 	acclist      parse.AccountList
 	field        textinput.Model
 	warningOnly  bool // whether to only show a warning and no password
-	tries        int
+	tries        uint
 	prev         *encryption.PasswordHash // previous password prompt, nil if only on first try
 	prevRendered string                   // ditto, but a rendered string (for prompt)
 
@@ -24,8 +24,8 @@ type passwordModel struct {
 
 // TODO: move to format??
 const (
-	PasswordMaxLen     int = 64
-	PasswordTriesCount int = 3
+	PasswordMaxLen     int  = 64 // len returns an int... good to know ig
+	PasswordTriesCount uint = 3
 )
 
 // Returns a password prompt model.
