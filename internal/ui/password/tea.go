@@ -5,10 +5,10 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/donderom/bubblon"
 
-	"github.com/firefish111/way2fa/internal/ui/msgs"
+	"github.com/firefish111/way2fa/internal/ui/common/msgs"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
 
 	"strings"
@@ -79,65 +79,26 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-var box = lipgloss.NewStyle().
-	BorderForeground(lipgloss.Color("6")).
-	//	Align(lipgloss.Center).
-	//	Border(lipgloss.DoubleBorder()).
-	Padding(1)
-
-var title = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(lipgloss.Color("157"))
-
-var supplement = lipgloss.NewStyle().
-	Italic(true).
-	Padding(2, 4).
-	Foreground(lipgloss.Color("9"))
-
-// copied from ..
-var faint = lipgloss.NewStyle().
-	Faint(true).
-	Foreground(lipgloss.Color("242"))
-
-var source = lipgloss.NewStyle().
-	Bold(true).
-	Align(lipgloss.Center).
-	Foreground(lipgloss.Color("159")).
-	Background(lipgloss.Color("88")).
-	Padding(0, 1).
-	Margin(0, 1)
-
-func (m passwordModel) putSrc(s *strings.Builder) {
-	srct, srcs := m.acclist.GetSource()
-
-	style := source
-	if srct == parse.FileSource {
-		style = style.Background(lipgloss.Color("22"))
-	}
-
-	s.WriteString(style.Render(srcs))
-}
-
 func (m passwordModel) View() string {
 	var s strings.Builder
 
 	// whether this is first or second entering
 	if m.prev == nil { // prevRendered is ignored, cause it's useless without prev
-		s.WriteString(title.Render("Enter password: "))
-		m.putSrc(&s)
+		s.WriteString(styles.Title.Render("Enter password: "))
+		s.WriteString(styles.RenderSource(m.acclist.GetSource()))
 	} else {
-		s.WriteString(title.Render("Confirm password: "))
-		m.putSrc(&s)
+		s.WriteString(styles.Title.Render("Confirm password: "))
+		s.WriteString(styles.RenderSource(m.acclist.GetSource()))
 		s.WriteRune('\n')
-		s.WriteString(faint.Render(m.prevRendered))
+		s.WriteString(styles.Faint.Render(m.prevRendered))
 	}
 	s.WriteRune('\n')
 	s.WriteString(m.field.View())
 
 	// if we have something to say?
 	if m.supplMsg != "" {
-		s.WriteString(supplement.Render(m.supplMsg))
+		s.WriteString(styles.Supplement.Render(m.supplMsg))
 	}
 
-	return box.Render(s.String())
+	return styles.Box.Render(s.String())
 }

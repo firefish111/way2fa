@@ -3,7 +3,7 @@ package ui
 import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
-	"github.com/firefish111/way2fa/parse"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 
 	"fmt"
 	"strings"
@@ -12,28 +12,16 @@ import (
 
 // write OTPs page.
 func (m model) writeOTPs(s *strings.Builder) {
-	s.WriteString(
-		app_name.Render("way2fa") +
-			faint.Render(" - My TOTPs: "))
+	s.WriteString(styles.AppName.Render("way2fa"))
+	s.WriteString(styles.Faint.Render(" - My TOTPs:"))
 
-	{
-		srct, srcs := m.reader.GetSource()
-
-		style := source
-		if srct == parse.FileSource {
-			style = style.Background(lipgloss.Color("22"))
-		}
-
-		s.WriteString(style.Render(srcs))
-	}
+	s.WriteString(styles.RenderSource(m.reader.GetSource()))
 
 	s.WriteRune('\n')
 
 	// separated the table generation code away from here, see ./table.go
-	s.WriteString(marg.Render(m.getTable().String()))
+	s.WriteString(styles.BigIndent.Render(m.getTable().String()))
 }
-
-var ditto = lipgloss.NewStyle().Align(lipgloss.Center).Foreground(lipgloss.Color("33"))
 
 // This is the generator for the actual account table.
 func (m model) getTable() *table.Table {
@@ -130,7 +118,7 @@ func (m model) getTable() *table.Table {
 					style = style.Foreground(lipgloss.Color("96")).Bold(false).Transform(func(_ string) string {
 						return "<no name>"
 					})
-				} else if row > 0 && otps[row][col] == otps[row-1][col] {
+				} else if row > 0 && otps[row][col] == otps[row-1][col] { // ditto
 					style = style.Foreground(lipgloss.Color("6")).Bold(false)
 				} else {
 					style = style.Foreground(lipgloss.Color("14"))

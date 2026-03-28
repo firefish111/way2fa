@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/firefish111/way2fa/account"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
 )
 
@@ -37,8 +38,8 @@ func Create(list parse.AccountList) (model, error) {
 		dirty:     nil,
 	}
 
-	ret.helpModel.Styles.ShortDesc = faint
-	ret.helpModel.Styles.FullDesc = faint
+	ret.helpModel.Styles.ShortDesc = styles.Faint
+	ret.helpModel.Styles.FullDesc = styles.Faint
 
 	return ret, nil
 }

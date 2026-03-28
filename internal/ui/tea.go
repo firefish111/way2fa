@@ -2,14 +2,14 @@ package ui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/donderom/bubblon"
 
 	"slices"
 	"strings"
 
+	"github.com/firefish111/way2fa/internal/ui/common/msgs"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/internal/ui/creation"
-	"github.com/firefish111/way2fa/internal/ui/msgs"
 	"github.com/firefish111/way2fa/internal/ui/password"
 )
 
@@ -94,39 +94,6 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-var source = lipgloss.NewStyle().
-	Bold(true).
-	Align(lipgloss.Center).
-	Foreground(lipgloss.Color("159")).
-	Background(lipgloss.Color("88")).
-	Padding(0, 1).
-	Margin(0, 1)
-
-// have been copied into ./creation/tea.go. if these ever change, change them there too
-var app_name = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(lipgloss.Color("220")).
-	PaddingLeft(1)
-
-// used for the confirmation prompt
-var srvc_name = lipgloss.NewStyle().
-	Italic(true).
-	Foreground(lipgloss.Color("117"))
-
-var faint = lipgloss.NewStyle().
-	Faint(true).
-	Foreground(lipgloss.Color("242"))
-
-var marg = lipgloss.NewStyle().
-	MarginLeft(4)
-
-var wip = lipgloss.NewStyle().
-	Margin(1, 2).
-	Padding(1, 2).
-	Background(lipgloss.Color("239")).
-	Foreground(lipgloss.Color("15")).
-	Bold(true)
-
 // Spit it out
 func (m model) View() string {
 	var s strings.Builder
@@ -136,16 +103,19 @@ func (m model) View() string {
 	m.writeOTPs(&s)
 
 	s.WriteRune('\n')
-	s.WriteRune(' ')
 
 	if m.dirty != nil {
-		s.WriteString("Please confirm with ")
-		s.WriteString(srvc_name.Render(m.accs[*m.dirty].Name))
-		s.WriteString(" that the highlighted OTP is correct before proceeding.\nIf you wish, you can also place in the desired order.\n ")
+		s.WriteString(
+			styles.Spaced.Render(
+				"Please confirm with " +
+					styles.SrvcName.Render(m.accs[*m.dirty].Name) +
+					" that the highlighted OTP is correct before proceeding.\n" +
+					"If you wish, you can also place it in the desired order."))
+		s.WriteRune('\n')
 	}
 
 	helpview := m.helpModel.View(m) // using self as a help model to access internal state
-	s.WriteString(helpview)
+	s.WriteString(styles.SidePad.Render(helpview))
 
 	s.WriteRune('\n')
 
