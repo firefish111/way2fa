@@ -56,6 +56,9 @@ var Wip = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("15")).
 	Bold(true)
 
+var Error = Wip.
+	Background(lipgloss.Color("53"))
+
 var Spaced = lipgloss.NewStyle().
 	Margin(1)
 

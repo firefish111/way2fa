@@ -23,9 +23,18 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
 		switch event.String() {
+		case "q":
+			if m.warningOnly {
+				return m, tea.Quit // goodbye
+			}
 		case "esc", "ctrl+c": // able to leave
 			return m, bubblon.Close // just close
 		case "enter":
+			if m.warningOnly { // not password protected.
+				// as it's not password protected, we still have to send a "decrypted" message, as rest of code expect that it is
+				return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
+			}
+
 			// submit password, and get error.
 			success, err := m.submit()
 
@@ -82,23 +91,41 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 func (m passwordModel) View() string {
 	var s strings.Builder
 
-	// whether this is first or second entering
-	if m.prev == nil { // prevRendered is ignored, cause it's useless without prev
-		s.WriteString(styles.Title.Render("Enter password: "))
-		s.WriteString(styles.RenderSource(m.acclist.GetSource()))
-	} else {
-		s.WriteString(styles.Title.Render("Confirm password: "))
+	if m.warningOnly {
+		s.WriteString(styles.Title.Render("Retrieving from: "))
 		s.WriteString(styles.RenderSource(m.acclist.GetSource()))
 		s.WriteRune('\n')
-		s.WriteString(styles.Faint.Render(m.prevRendered))
+
+		s.WriteString(styles.Error.Render(
+			styles.Title.Render("WARNING: ") +
+				"\n\nThis account list is not password protected.\n" +
+				"Please switch to a password-protected one!"))
+	} else {
+		// whether this is first or second entering
+		if m.prev == nil { // prevRendered is ignored, cause it's useless without prev
+			s.WriteString(styles.Title.Render("Enter password: "))
+			s.WriteString(styles.RenderSource(m.acclist.GetSource()))
+		} else {
+			s.WriteString(styles.Title.Render("Confirm password: "))
+			s.WriteString(styles.RenderSource(m.acclist.GetSource()))
+			s.WriteRune('\n')
+			s.WriteString(styles.Faint.Render(m.prevRendered))
+		}
+		s.WriteRune('\n')
+		s.WriteString(m.field.View())
 	}
+
 	s.WriteRune('\n')
-	s.WriteString(m.field.View())
 
 	// if we have something to say?
 	if m.supplMsg != "" {
 		s.WriteString(styles.Supplement.Render(m.supplMsg))
 	}
+
+	s.WriteRune('\n')
+
+	helpview := m.helpModel.View(m) // using self as a help model to access internal state
+	s.WriteString(styles.SidePad.Render(helpview))
 
 	return styles.Box.Render(s.String())
 }

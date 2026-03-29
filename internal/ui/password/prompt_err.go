@@ -26,7 +26,11 @@ func (e PromptError) Error() string {
 	case OutOfTries:
 		return fmt.Sprintf("PromptError: Out of tries (used all %d)", PasswordTriesCount)
 	case TooLong:
-		return fmt.Sprintf("PromptError: Password exceeded %d bytes", PasswordMaxLen)
+		return fmt.Sprintf(
+			"PromptError: Password was %d bytes long (exceeded max of %d)",
+			e.passlen,
+			PasswordMaxLen,
+		)
 	default:
 		return fmt.Sprintf("PromptError: unknown cause, given %d", e)
 	}
