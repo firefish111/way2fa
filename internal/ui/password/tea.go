@@ -27,8 +27,10 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			if m.warningOnly {
 				return m, tea.Quit // goodbye
 			}
+		/* TODO: make it so that it can actually handle not decrypting
 		case "esc", "ctrl+c": // able to leave
 			return m, bubblon.Close // just close
+		*/
 		case "enter":
 			if m.warningOnly { // not password protected.
 				// as it's not password protected, we still have to send a "decrypted" message, as rest of code expect that it is
@@ -99,7 +101,10 @@ func (m passwordModel) View() string {
 		s.WriteString(styles.Error.Render(
 			styles.Title.Render("WARNING: ") +
 				"\n\nThis account list is not password protected.\n" +
-				"Please switch to a password-protected one!"))
+				// TODO: once passwording is done
+				//"Please switch to a password-protected format!",
+				"Password-protected formats are coming soon.",
+		))
 	} else {
 		// whether this is first or second entering
 		if m.prev == nil { // prevRendered is ignored, cause it's useless without prev

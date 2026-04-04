@@ -21,12 +21,13 @@ func (m passwordModel) ShortHelp() []key.Binding {
 		return []key.Binding{
 			m.helpDB["acknowledge"],
 			m.helpDB["quit"],
-			m.helpDB["back"],
+			// TODO: make normal ui have defined behaviour when no accounts are retreived
+			// m.helpDB["back"],
 		}
 	} else {
 		return []key.Binding{
 			m.helpDB["submit"+strconv.FormatBool(m.prev != nil)], // jank, because no ternary statement
-			m.helpDB["back"],
+			// m.helpDB["back"],
 		}
 	}
 }
