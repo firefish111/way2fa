@@ -88,6 +88,12 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			if err != nil {
 				return m, bubblon.Fail(err) // pass up error
 			}
+
+			// Repair all. Just in case our reader messed something up.
+			for ix := range m.accs {
+				// can't use reassignment, because this takes a mutable pointer
+				m.accs[ix].RepairValues()
+			}
 		}
 	}
 

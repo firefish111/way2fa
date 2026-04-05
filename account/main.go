@@ -15,7 +15,7 @@ type RawKey []byte
 type Account struct {
 	Name     string `csv:"name"`
 	AcctId   string `csv:"acc_id"`
-	Interval *uint  `csv:"interv"`
+	Interval *uint  `csv:"interv, omitempty"`
 	Key      RawKey `csv:"key"`
 }
 
@@ -36,9 +36,26 @@ func (a Account) GenKey(nth uint64) (uint32, error) {
 
 // Interval default checking thunk. Account.Interval must still be public though, as the marshaller requires all fields be public
 func (a Account) GetInterval() uint {
+	// we must check if Interval is 0, as well as being nil.
+	// RepairValues below does change this, but that being run is not a guarantee
 	if a.Interval == nil || *a.Interval == 0 {
 		return 30
 	} else {
 		return *a.Interval
+	}
+}
+
+// Fixes any impossible/implausible properties of the account.
+//
+// Shouldn't really need to be used, but just in case the (un)marshaller breaks things.
+// This function is only really provided for completeness' sake.
+//
+// The rest of the code does know what to do when encountering this dodgy values,
+// so as to minimise undefined behaviour, though the (un)marshaller may not.
+// For example, replaces an Interval of 0 with nil, as Interval 0 is meaningless,i
+// but it still is interpreted the same as nil in GetInterval.
+func (a *Account) RepairValues() {
+	if a.Interval != nil && *a.Interval == 0 { // zero should never occur
+		a.Interval = nil
 	}
 }
