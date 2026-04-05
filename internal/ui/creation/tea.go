@@ -2,14 +2,15 @@ package creation
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/huh"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/donderom/bubblon"
-	"github.com/firefish111/way2fa/account"
-	"github.com/firefish111/way2fa/internal/ui/msgs"
 	"strconv"
 	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/huh"
+	"github.com/donderom/bubblon"
+	"github.com/firefish111/way2fa/account"
+	"github.com/firefish111/way2fa/internal/ui/common/msgs"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 )
 
 func (m formModel) Init() tea.Cmd {
@@ -28,13 +29,13 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// relay. the update function returns a new copy of self, so we replace
-	f, cmd := m.form.Update(event)
+	fmodel, cmd := m.form.Update(event)
 
 	// double check that it is actually a form (no doubt, but still)
-	f, ok := f.(*huh.Form)
-	if !ok { // if the form has ceased to be a form. should never happen, but being careful.
-		// i'm just waiting for the inevitable github issue "um why does it say this? help pls"
-		return m, bubblon.Fail(fmt.Errorf("The form has metamorphosed (bad)"))
+	if f, ok := fmodel.(*huh.Form); !ok { // if the form has ceased to be a form. should never happen, but being careful.
+		return m, bubblon.Fail(fmt.Errorf("ui: creation: form has metamorphosed"))
+	} else {
+		m.form = f
 	}
 
 	if m.form.State == huh.StateCompleted { // if we have completed form
@@ -65,34 +66,20 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-// styles. these are copied from ../tea.go, because there seriously is no point making an extra package just for them
-var app_name = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(lipgloss.Color("220")).
-	PaddingLeft(1)
-
-var faint = lipgloss.NewStyle().
-	Faint(true).
-	Foreground(lipgloss.Color("242"))
-
-var space = lipgloss.NewStyle().
-	Margin(1)
-
 func (m formModel) View() string {
 	var s strings.Builder
 
 	s.WriteRune('\n')
 
-	// copied from ../tea.go for consistency's sake
-	s.WriteString(
-		app_name.Render("way2fa") +
-			faint.Render(" - New TOTP"))
+	// copied from ../otps.go for consistency's sake
+	s.WriteString(styles.AppName.Render("way2fa"))
+	s.WriteString(styles.Faint.Render(" - New TOTP"))
 
 	s.WriteRune('\n')
 
-	s.WriteString(space.Render(m.form.View()))
+	s.WriteString(styles.Spaced.Render(m.form.View()))
 
-	s.WriteString(space.Render(m.modifiedHelp()))
+	s.WriteString(styles.Spaced.Render(m.modifiedHelp()))
 
 	return s.String()
 }

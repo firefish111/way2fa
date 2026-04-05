@@ -2,7 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 
 	"strconv"
 )
@@ -37,48 +37,42 @@ func (m model) FullHelp() [][]key.Binding {
 	return [][]key.Binding{m.ShortHelp()}
 }
 
-// borrowed into ./ui/help.go
-var none = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
-var peekon = lipgloss.NewStyle().Foreground(lipgloss.Color("218")).Bold(true)
-var newon = lipgloss.NewStyle().Foreground(lipgloss.Color("112")).Bold(true)
-var off = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
-
 func defaultHelp() map[string]key.Binding {
 	return map[string]key.Binding{
 		"down": key.NewBinding(
 			key.WithKeys("j"),
-			key.WithHelp(none.Render("j"), "move down"),
+			key.WithHelp(styles.None.Render("j"), "move down"),
 		),
 		"up": key.NewBinding(
 			key.WithKeys("k"),
-			key.WithHelp(none.Render("k"), "move up"),
+			key.WithHelp(styles.None.Render("k"), "move up"),
 		),
 		"accept": key.NewBinding(
 			key.WithKeys("y"),
-			key.WithHelp(none.Render("y"), "accept + save"),
+			key.WithHelp(styles.None.Render("y"), "accept + save"),
 		),
 		"reject": key.NewBinding(
 			key.WithKeys("n"),
-			key.WithHelp(none.Render("n"), "reject + remove"),
+			key.WithHelp(styles.None.Render("n"), "reject + remove"),
 		),
 		"newfalse": key.NewBinding(
 			key.WithKeys("c"),
-			key.WithHelp(none.Render("c"), "create TOTP"),
+			key.WithHelp(styles.None.Render("c"), "create TOTP"),
 		),
 		"newtrue": key.NewBinding(
 			key.WithKeys("esc"),
-			key.WithHelp(newon.Render("esc"), "go back"),
+			key.WithHelp(styles.NewOn.Render("esc"), "go back"),
 		),
 		"peektrue": key.NewBinding(
 			key.WithKeys("p"),
-			key.WithHelp(peekon.Render("p"), "unpeek"),
+			key.WithHelp(styles.PeekOn.Render("p"), "unpeek"),
 		),
 		"peekfalse": key.NewBinding(
 			key.WithKeys("p"),
-			key.WithHelp(off.Render("p"), "peek"),
+			key.WithHelp(styles.Off.Render("p"), "peek"),
 		),
 		"quit": key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
-			key.WithHelp(none.Render("q"), "quit"),
+			key.WithHelp(styles.None.Render("q"), "quit"),
 		)}
 }

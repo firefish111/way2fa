@@ -8,9 +8,11 @@ import (
 //
 // wasDecrypted is whether the error was decrypted or not
 // private field action contains what was attempted
+// public field IsFaultOfPassword signifies whether this was the password's fault, or some other issue
 type DecryptError struct {
-	wasDecrypted bool
-	action       string
+	wasDecrypted      bool
+	action            string
+	IsFaultOfPassword bool
 }
 
 func (e DecryptError) Error() string {
@@ -26,7 +28,8 @@ func (e DecryptError) Error() string {
 
 func NotDecrypted(act string) DecryptError {
 	return DecryptError{
-		wasDecrypted: false,
-		action:       act,
+		wasDecrypted:      false,
+		action:            act,
+		IsFaultOfPassword: true, // this is a password problem
 	}
 }

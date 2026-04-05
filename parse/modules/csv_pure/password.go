@@ -1,5 +1,9 @@
 package csv_pure
 
+import (
+	"github.com/firefish111/way2fa/parse/encryption"
+)
+
 // This filetype is NEVER password protected, so always false.
 // All other methods are stubs.
 func (c *CsvPure) IsPasswordProtected() bool {
@@ -7,7 +11,7 @@ func (c *CsvPure) IsPasswordProtected() bool {
 }
 
 // no error, as is always decrypted. error means something went wrong
-func (c *CsvPure) Decrypt(_password string) error {
+func (c *CsvPure) Decrypt(_password encryption.PasswordHash) error {
 	return nil
 }
 
