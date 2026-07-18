@@ -1,9 +1,17 @@
 package encryption
 
-// TODO: make this []byte once encryption comes
-type (
-	PasswordHash string
+import (
+	"slices"
 )
+
+type (
+	PasswordHash []byte
+)
+
+// abstracted out equality function, as we can't assume it's a []byte
+func (h PasswordHash) Matches(rhs PasswordHash) bool {
+	return slices.Equal(h, rhs)
+}
 
 // TODO: just a stub
 func HashPassword(key string) PasswordHash {

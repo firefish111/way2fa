@@ -42,7 +42,7 @@ func (m *passwordModel) submit() (bool, error) {
 		// can't take pointer without a binding
 		m.prev = &hashed // store current hashed password into a "previous" field
 		m.prevRender()   // render previous text
-	} else if hashed != *m.prev {
+	} else if hashed.Matches(*m.prev) {
 		// if passwords don't match.
 		// we clear prev as well, as we want to reset both initial and confirmation. (the first time could've contained the mistake)
 		m.prev = nil
