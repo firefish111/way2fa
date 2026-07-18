@@ -6,6 +6,7 @@ import (
 	"github.com/firefish111/way2fa/parse"
 )
 
+// used for source location
 var Source = lipgloss.NewStyle().
 	Bold(true).
 	Align(lipgloss.Center).
@@ -23,7 +24,7 @@ func RenderSource(which parse.DataSource, name string) string {
 	return style.Render(name)
 }
 
-// have been copied into ./creation/tea.go. if these ever change, change them there too
+// the name of this app, i.e. way2fa
 var AppName = lipgloss.NewStyle().
 	Bold(true).
 	Foreground(lipgloss.Color("220")).
@@ -32,7 +33,7 @@ var AppName = lipgloss.NewStyle().
 // used for the confirmation prompt
 var SrvcName = lipgloss.NewStyle().
 	Italic(true).
-	Foreground(lipgloss.Color("117"))
+	Foreground(lipgloss.Color("14"))
 
 var None = lipgloss.NewStyle().Foreground(lipgloss.Color("251"))
 var PeekOn = lipgloss.NewStyle().Foreground(lipgloss.Color("218")).Bold(true)
@@ -76,3 +77,7 @@ var Supplement = lipgloss.NewStyle().
 	Italic(true).
 	Padding(2, 4).
 	Foreground(lipgloss.Color("9"))
+
+var Header = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("208"))
