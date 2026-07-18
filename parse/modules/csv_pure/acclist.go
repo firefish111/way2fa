@@ -7,6 +7,7 @@ import (
 
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/parse"
+	"github.com/firefish111/way2fa/parse/cryptor"
 	"github.com/gocarina/gocsv"
 )
 
@@ -14,7 +15,7 @@ import (
 
 func (c *CsvPure) GetAccs() ([]account.Account, error) {
 	if !c.IsDecrypted() {
-		return nil, parse.NotDecrypted("get Accounts")
+		return nil, cryptor.NotDecrypted("get Accounts")
 	}
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 
@@ -36,7 +37,7 @@ func (c *CsvPure) GetAccs() ([]account.Account, error) {
 
 func (c *CsvPure) WriteAccs(to_write []account.Account) error {
 	if !c.IsDecrypted() {
-		return parse.NotDecrypted("write Accounts")
+		return cryptor.NotDecrypted("write Accounts")
 	}
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 

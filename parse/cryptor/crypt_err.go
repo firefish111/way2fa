@@ -1,4 +1,4 @@
-package parse
+package cryptor
 
 import (
 	"fmt"
@@ -9,13 +9,13 @@ import (
 // wasDecrypted is whether the error was decrypted or not
 // private field action contains what was attempted
 // public field IsFaultOfPassword signifies whether this was the password's fault, or some other issue
-type DecryptError struct {
+type CryptError struct {
 	wasDecrypted      bool
 	action            string
 	IsFaultOfPassword bool
 }
 
-func (e DecryptError) Error() string {
+func (e CryptError) Error() string {
 	switch e.wasDecrypted {
 	case false:
 		return fmt.Sprintf("DecryptError: could not %s, was still encrypted", e.action)
@@ -26,8 +26,8 @@ func (e DecryptError) Error() string {
 	}
 }
 
-func NotDecrypted(act string) DecryptError {
-	return DecryptError{
+func NotDecrypted(act string) CryptError {
+	return CryptError{
 		wasDecrypted:      false,
 		action:            act,
 		IsFaultOfPassword: true, // this is a password problem

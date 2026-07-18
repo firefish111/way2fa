@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/firefish111/way2fa/parse/encryption"
+	"github.com/firefish111/way2fa/parse/cryptor"
 )
 
 // Keeps a backup rendered password prompt, in order to show the end user to make it obvious
@@ -24,7 +24,7 @@ func (m *passwordModel) prevRender() {
 // Submit password.
 // Returns error and success status: if true, then program can exit.
 func (m *passwordModel) submit() (bool, error) {
-	var hashed encryption.PasswordHash
+	var hashed cryptor.PasswordHash
 
 	// in this scope only. done to make it obvious that THE RAW PASSWORD IS HERE.
 	// we want the ACTUAL PASSWORD to be gc'd asap, so any potential memory vulnerabilities are harder
@@ -35,7 +35,7 @@ func (m *passwordModel) submit() (bool, error) {
 		} else if pLen == 0 { // is password empty?
 			return false, nil // do absolutely nothing
 		}
-		hashed = encryption.HashPassword(raw)
+		hashed = cryptor.HashPassword(raw)
 	}
 
 	if m.prev == nil { // if this is our first go

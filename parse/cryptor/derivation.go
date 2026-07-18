@@ -1,8 +1,9 @@
-package encryption
+package cryptor
 
 import (
 	"crypto/rand"
 
+	"github.com/firefish111/way2fa/internal/config"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -18,7 +19,15 @@ func generateNonce(size_bytes uint32) ([]byte, error) {
 	return nonce, nil
 }
 
-func deriveKey(password PasswordHash, salt []byte, params DerivationCapabilities, size_bytes uint32) ([]byte, error) {
-	key := argon2.IDKey([]byte(password), salt, params.Time, params.Memory, params.Threads, size_bytes)
-	return key, nil
+func deriveKey(password PasswordHash, salt []byte, params config.DerivationCapabilities, size_bytes uint32) []byte {
+	key := argon2.IDKey(
+		[]byte(password),
+		salt,
+		params.Time,
+		params.Memory,
+		params.Threads,
+		size_bytes,
+	)
+
+	return key
 }

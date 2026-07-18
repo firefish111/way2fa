@@ -1,4 +1,4 @@
-// Package containind code for the password prompt.
+// Package containing code for the password prompt.
 // This is needed every time some a major operation is performed to the data file, such that it needs to be briefly decrypted.
 //
 // This is a submodel, which is all handled by bubblon
@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/encryption"
+	"github.com/firefish111/way2fa/parse/cryptor"
 )
 
 // tries = how many attempts have failed. starts out at 0
@@ -21,8 +21,8 @@ type passwordModel struct {
 	field        textinput.Model
 	warningOnly  bool // whether to only show a warning and no password
 	tries        uint
-	prev         *encryption.PasswordHash // previous password prompt, nil if only on first try
-	prevRendered string                   // ditto, but a rendered string (for prompt)
+	prev         *cryptor.PasswordHash // previous password prompt, nil if only on first try
+	prevRendered string                // ditto, but a rendered string (for prompt)
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
 }

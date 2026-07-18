@@ -9,7 +9,7 @@ import (
 
 	"github.com/firefish111/way2fa/internal/ui/common/msgs"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
-	"github.com/firefish111/way2fa/parse"
+	"github.com/firefish111/way2fa/parse/cryptor"
 
 	"strings"
 )
@@ -49,7 +49,7 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			// if we got a decryption error that is because the password was wrong (that is they matched, but decryption failed),
 			// then we sneakily replace the error, as that is not a fail condition: unless that happens 3 times.
 			// in which case, we replace the error with our own
-			case parse.DecryptError:
+			case cryptor.CryptError:
 				if outerr.IsFaultOfPassword { // if it is the fault of the password that we got this error
 					// increase try count; if we surpassed max count
 					if m.tries++; m.tries >= PasswordTriesCount {

@@ -12,5 +12,5 @@ type FormatError struct {
 }
 
 func (e FormatError) Error() string {
-	return fmt.Sprintf("FormatError: epic fail (%s)", e.reason)
+	return fmt.Sprintf("FormatError: malformed format (because %s)", e.reason)
 }
