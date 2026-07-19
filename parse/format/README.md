@@ -10,9 +10,7 @@ The format consists of the following consecutive fields.
 
 | Field Name | Size | Purpose |
 | :- | :-: | :- |
-| Header | `8` bytes | To signify that this is indeed a `.way` file, and which module to use |
-| IV | `12` bytes | Cryptographic nonce for AES encryption. All nulls if no password. |
-| Salt | `16` bytes | Cryptographic salt for key derivation. All nulls if no password. |
+| Header | `48` bytes | To signify that this is indeed a `.way` file, and which module to use; also contains IV and Salt information |
 | Content | ? | Whatever content the file is housing, base64encoded then encrypted in algorithm signified in header. |
 
 # To be continued

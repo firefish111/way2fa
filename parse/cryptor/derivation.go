@@ -24,7 +24,7 @@ func deriveKey(password PasswordHash, salt []byte, params config.DerivationCapab
 		[]byte(password),
 		salt,
 		params.Time,
-		params.Memory,
+		params.MemKiB,
 		params.Threads,
 		size_bytes,
 	)

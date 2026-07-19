@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"fmt"
 
 	"github.com/firefish111/way2fa/internal/config"
 )
@@ -57,9 +58,11 @@ func (a AesCryptor) DecryptAes(ciphertext []byte) ([]byte, error) {
 
 	// TODO: see earlier about authenticating header too
 	plaintext, err := gcm.Open(nil, a.Iv, ciphertext, nil)
-	if err != nil { // this is likely an authentication error?
-		// TODO: some identity checks of the err and then wrap in appropriate type
-		return nil, err
+	if err != nil {
+		// NOTE: though it's likely an error to do with the password, this doesn't eliminate
+		// the possibility that the header has been tampered with, as the GCM doesn't distinguish.
+		// either way, file is unopenable
+		return nil, fmt.Errorf("%w; %w", FailedAuthentication(), err)
 	}
 
 	// undo pad with nulls
@@ -68,18 +71,17 @@ func (a AesCryptor) DecryptAes(ciphertext []byte) ([]byte, error) {
 	return unpadded, nil
 }
 
-// TODO: maybe use ../format/FormatError for wrapping these errors in?
 func MakeAes(passhash PasswordHash, withCapabilities *config.DerivationCapabilities) (AesCryptor, error) {
 	// generate derivation salt and iv, using predetermined sizes defined in ./main.go, q.v.
 	salt, err := generateNonce(Argon2SaltSize)
 	if err != nil {
 		// structs can't be nil, just empty
-		return AesCryptor{}, err
+		return AesCryptor{}, fmt.Errorf("%w; %w", CouldNotGenerateNonce("Argon2 salt"), err)
 	}
 
 	iv, err := generateNonce(AesIvSize)
 	if err != nil {
-		return AesCryptor{}, err
+		return AesCryptor{}, fmt.Errorf("%w; %w", CouldNotGenerateNonce("AES IV"), err)
 	}
 
 	// if we haven't set capabilities, we get what our computer has

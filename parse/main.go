@@ -47,8 +47,7 @@ type AccountList interface {
 	// Detect whether the account list is of the correct format.
 	// If is a .way file then this checks whether it is of the correct subformat.
 	//
-	// NOTE: this may not necessarily mean that there are no errors in the format,
-	// only that basic header checks and filetype checks pass.
+	// NOTE: this may not necessarily mean that there are no errors in the format, only that basic header checks and filetype checks pass.
 	// Therefore, does not return error: as an invalid filetype ought not be an error, only a signal to move to the next filetype.
 	Validate() bool
 
@@ -58,7 +57,7 @@ type AccountList interface {
 	IsPasswordProtected() bool
 
 	// Decrypt. This needs to be done (ideally immediately) before any of the meaningful operations (i.e. GetAccs, WriteAccs, etc).
-	// If IsPasswordProtected() returns false, this should not error, as it is prepetually decrypted.
+	// If IsPasswordProtected() returns false, this should not error, as it is perpetually decrypted.
 	//
 	// Is idempotent: in that if already in decrypted state, should do nothing and not error.
 	//

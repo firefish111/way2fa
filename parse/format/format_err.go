@@ -8,9 +8,18 @@ import (
 //
 // Not to be confused with detection issues, those are non-erroring, and arise only in the detector.
 type FormatError struct {
-	reason string
+	reason          string
+	isFaultOfHeader bool
 }
 
 func (e FormatError) Error() string {
-	return fmt.Sprintf("FormatError: malformed format (because %s)", e.reason)
+	if e.isFaultOfHeader {
+		return fmt.Sprintf("FormatError: malformed account file header; %s", e.reason)
+	} else {
+		return fmt.Sprintf("FormatError: malformed account file; %s", e.reason)
+	}
+}
+
+func headerError(reason string) FormatError {
+	return FormatError{reason: reason, isFaultOfHeader: true}
 }
