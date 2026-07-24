@@ -3,6 +3,7 @@ package parse
 import (
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/parse/cryptor"
+	"github.com/firefish111/way2fa/parse/format"
 )
 
 // Where the data was obtained from
@@ -36,20 +37,7 @@ type AccountList interface {
 
 	// Prepopulate all fields with those of the given file.
 	// Completely erases what was already there.
-	PrepopulateFromFile(path string) error
-
-	// Prepopulate all fields with those of the default file.
-	// Completely erases what was already there.
-	//
-	// Designed to be used in the detector package.
-	PrepopulateDefault() error
-
-	// Detect whether the account list is of the correct format.
-	// If is a .way file then this checks whether it is of the correct subformat.
-	//
-	// NOTE: this may not necessarily mean that there are no errors in the format, only that basic header checks and filetype checks pass.
-	// Therefore, does not return error: as an invalid filetype ought not be an error, only a signal to move to the next filetype.
-	Validate() bool
+	PrepopulateFromFile(path string, isDefault bool) error
 
 	// Whether is password protected: is used to trigger the password prompt
 	//
@@ -77,4 +65,26 @@ type AccountList interface {
 	// If IsPasswordProtected() returns false, this should always return true, as it is prepetually decrypted.
 	// See Decrypt(string) for use.
 	IsDecrypted() bool
+}
+
+// the other, more specific interfaces
+
+type PureAccountList interface {
+	AccountList
+
+	// Detect whether the account list is of the correct format.
+	//
+	// NOTE: this may not necessarily mean that there are no errors in the format, only that basic header checks and filetype checks pass.
+	// Therefore, does not return error: as an invalid filetype ought not be an error, only a signal to move to the next filetype.
+	Detect() bool
+
+	// obtain the default filename it's expecting. see detector for more info
+	GetDefaultFilename() string
+}
+
+type WayAccountList interface {
+	AccountList
+
+	// Gets the ID assigned to it in the .way file.
+	GetWayTypeId() format.FileTypeId
 }

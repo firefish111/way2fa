@@ -4,6 +4,7 @@
 package detector
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/firefish111/way2fa/parse"
@@ -14,7 +15,8 @@ import (
 // These are designed to have the PrePopulate methods called on them.
 //
 // These are also in the priority order that they should be searched in.
-// As of yet, this is just CsvPure at highest priority. XXX please update when necessary
+// As of yet, this is just CsvPure at highest priority.
+// XXX please update when necessary
 func getAllUnpopulated() []parse.AccountList {
 	return []parse.AccountList{
 		&csv_pure.CsvPure{},
@@ -31,13 +33,16 @@ func Detect(path *string) parse.AccountList {
 	types := getAllUnpopulated()
 	var err error
 
+	// loop through every type in turn
 	for i, _ := range types {
 		// if this errors, it usually means directory not found
-		if path == nil {
+		/* ERROR: try to figure out new prepoluation logic
+		 * if path == nil {
 			err = types[i].PrepopulateDefault()
 		} else {
 			err = types[i].PrepopulateFromFile(*path)
-		}
+			}
+		*/
 
 		// henceforth, types[i] is no longer empty, unless err isn't nil
 
@@ -49,8 +54,20 @@ func Detect(path *string) parse.AccountList {
 			continue
 		}
 
-		if !types[i].Validate() { // if is invalid
-			continue
+		// check whether account list type is pure or not. they use slightly different interface types,
+		// which both embed the main interface type, as we want to be able to interact with them slightly differently.
+		switch list := types[i].(type) {
+		case parse.PureAccountList:
+			if !list.Detect() {
+				continue
+			}
+		case parse.WayAccountList:
+			// FIXME: terrible hardcoding. supposed to compare against header
+			if list.GetWayTypeId() != 0 {
+				continue
+			}
+		default:
+			panic(fmt.Errorf("List type %T (index %d) has can't be detected", list, i))
 		}
 
 		return types[i] // found it!

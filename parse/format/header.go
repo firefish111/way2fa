@@ -12,9 +12,11 @@ const (
 	FormatVersion uint16 = 1
 )
 
-// FileFormat constants
+type FileTypeId uint8
+
+// FileType constants
 const (
-	Csv uint8 = iota
+	Csv FileTypeId = iota
 
 	// special value, for comparison check
 	_MaxFileType
@@ -33,7 +35,7 @@ type Header struct {
 	Version uint16
 
 	// see constant definitions
-	FileType uint8
+	FileType FileTypeId
 	Flags    uint8
 
 	// when the payload was last modified, in Unix seconds
