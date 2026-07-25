@@ -41,9 +41,9 @@ func main() {
 	}
 
 	// store is the automatic detector
-	store := detector.Detect(name)
-	if store == nil {
-		panic(fmt.Errorf("Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", config.ConfPath))
+	store, err := detector.Detect(name)
+	if err != nil {
+		panic(fmt.Errorf("Automatic detection failed, aborting.\n\n%w\n\nHINT: create a default file in %s.\n", err, config.ConfPath))
 	}
 
 	// call the ui
