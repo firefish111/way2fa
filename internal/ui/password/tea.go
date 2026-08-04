@@ -1,6 +1,7 @@
 package password
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -15,13 +16,65 @@ import (
 )
 
 func (m passwordModel) Init() tea.Cmd {
-	// we want a blinking cursor
+	// we want a blinking curs"Please wait
 	return textinput.Blink
 }
 
 func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
+	if m.decryptContext != nil {
+		select {
+		case <-m.decryptContext.Done():
+			if m.decryptContext.Err() == context.DeadlineExceeded {
+				m.supplMsg = "Decryption timed out."
+			} else if context.Cause(m.decryptContext) == context.Canceled {
+				// if cancelled with no reason. this is only done if it completed successfully, so we exit
+				if !m.acclist.IsDecrypted() {
+					return m, bubblon.Fail(fmt.Errorf("ui: password: account list decryption claimed it succeeded; it didn't"))
+				} else {
+					// we did it!!
+					return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
+				}
+			} else {
+				err := context.Cause(m.decryptContext)
+				// take a closer look at the error
+				switch outerr := err.(type) {
+				// if we got a decryption error that is because the password was wrong (that is they matched, but decryption failed),
+				// then we sneakily replace the error, as that is not a fail condition: unless that happens 3 times.
+				// in which case, we replace the error with our own
+				case cryptor.CryptError:
+					if outerr.IsFaultOfPassword { // if it is the fault of the password that we got this error
+						// increase try count; if we surpassed max count
+						if m.tries++; m.tries >= PasswordTriesCount {
+							err = PromptError{PromptErrorType: OutOfTries}
+						} else {
+							err = nil // we don't want to pass up password fails
+						}
+
+						// tries have actually increased, so:
+						m.supplMsg = fmt.Sprintf("%v\nPlease try again.\n\tAttempt %d of %d", err, m.tries+1, PasswordTriesCount)
+					}
+				}
+
+				// pass up error if we need to
+				if err != nil {
+					return m, bubblon.Fail(err)
+				}
+			}
+
+			// remove the context, as it will be created by another submit
+			m.decryptContext = nil
+		default:
+			/* do nothing */
+		}
+	}
+
 	switch event := event.(type) {
 	case tea.KeyMsg: // handle keypress
+		if m.decryptContext != nil {
+			// please do NOT submit again, or handle any other keypresses for that matter, if already submitted
+			break
+		}
+
 		switch event.String() {
 		case "q":
 			if m.warningOnly {
@@ -33,34 +86,21 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 		*/
 		case "enter":
 			if m.warningOnly { // not password protected.
-				// as it's not password protected, we still have to send a "decrypted" message, as rest of code expect that it is
+				// as it's not password protected, we still have to send a "decrypted" message, as rest of code expects that it is
 				return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
 			}
 
 			// submit password, and get error.
-			success, err := m.submit()
+			ctx, err := m.submit()
 
-			if success { // we got it decrypted!!
-				return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
+			if ctx != nil { // we got it decrypted!!
+				// get context and save it
+				m.decryptContext = ctx
 			}
 
 			// take a closer look at the error
+			// NOTE: as of yet, submit() only returns PromptErrors
 			switch outerr := err.(type) {
-			// if we got a decryption error that is because the password was wrong (that is they matched, but decryption failed),
-			// then we sneakily replace the error, as that is not a fail condition: unless that happens 3 times.
-			// in which case, we replace the error with our own
-			case cryptor.CryptError:
-				if outerr.IsFaultOfPassword { // if it is the fault of the password that we got this error
-					// increase try count; if we surpassed max count
-					if m.tries++; m.tries >= PasswordTriesCount {
-						err = PromptError{PromptErrorType: OutOfTries}
-					} else {
-						err = nil // we don't want to pass up password fails
-					}
-
-					// tries have actually increased, so:
-					m.supplMsg = fmt.Sprintf("Password incorrect. Please try again.\n\tAttempt %d of %d", m.tries+1, PasswordTriesCount)
-				}
 			case PromptError:
 				// if passwords don't match: we ignore error.
 				if outerr.PromptErrorType == NotMatch {
@@ -79,6 +119,7 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			m.field.Reset()
 		}
 	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
+		m.ticks++
 		return m, msgs.Tick() // tick again. this will be executed, and after it times out, update will be called again
 	}
 
@@ -93,7 +134,11 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 func (m passwordModel) View() string {
 	var s strings.Builder
 
-	if m.warningOnly {
+	if m.decryptContext != nil {
+		s.WriteString(styles.Error.Render(
+			fmt.Sprintf("Please wait, decrypting... %c", "-\\|/"[m.ticks&3]),
+		))
+	} else if m.warningOnly {
 		s.WriteString(styles.Title.Render("Retrieving from: "))
 		s.WriteString(styles.RenderSource(m.acclist.GetSource()))
 		s.WriteRune('\n')

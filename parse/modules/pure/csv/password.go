@@ -1,6 +1,8 @@
 package csv_pure
 
 import (
+	"context"
+
 	"github.com/firefish111/way2fa/parse/cryptor"
 )
 
@@ -11,8 +13,8 @@ func (c *CsvPure) IsPasswordProtected() bool {
 }
 
 // no error, as is always decrypted. error means something went wrong
-func (c *CsvPure) Decrypt(_password cryptor.PasswordHash) error {
-	return nil
+func (c *CsvPure) Decrypt(_ctx context.Context, _password cryptor.PasswordHash) {
+	/* nothing */
 }
 
 func (c *CsvPure) Recrypt() {

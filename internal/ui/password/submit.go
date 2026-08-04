@@ -1,10 +1,18 @@
 package password
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/firefish111/way2fa/parse"
 	"github.com/firefish111/way2fa/parse/cryptor"
+)
+
+const (
+	// how much extra leeway on top of its predicted time we give the decryption to complete before timing out
+	decryptionTimeoutLeeway = 5 * time.Second
 )
 
 // Keeps a backup rendered password prompt, in order to show the end user to make it obvious
@@ -22,8 +30,8 @@ func (m *passwordModel) prevRender() {
 }
 
 // Submit password.
-// Returns error and success status: if true, then program can exit.
-func (m *passwordModel) submit() (bool, error) {
+// Returns error and a context. If context is non-nil, then program is undergoing decryption, and should wait on that
+func (m *passwordModel) submit() (context.Context, error) {
 	var hashed cryptor.PasswordHash
 
 	// in this scope only. done to make it obvious that THE RAW PASSWORD IS HERE.
@@ -31,9 +39,9 @@ func (m *passwordModel) submit() (bool, error) {
 	{
 		raw := m.field.Value()
 		if pLen := len(raw); pLen > PasswordMaxLen {
-			return false, PromptError{PromptErrorType: TooLong, passlen: pLen}
+			return nil, PromptError{PromptErrorType: TooLong, passlen: pLen}
 		} else if pLen == 0 { // is password empty?
-			return false, nil // do absolutely nothing
+			return nil, nil // do absolutely nothing
 		}
 		hashed = cryptor.HashPassword(raw)
 	}
@@ -42,21 +50,35 @@ func (m *passwordModel) submit() (bool, error) {
 		// can't take pointer without a binding
 		m.prev = &hashed // store current hashed password into a "previous" field
 		m.prevRender()   // render previous text
+
+		// nothing eventful happened
+		return nil, nil
 	} else if hashed.Matches(*m.prev) {
 		// if passwords don't match.
 		// we clear prev as well, as we want to reset both initial and confirmation. (the first time could've contained the mistake)
 		m.prev = nil
-		return false, PromptError{PromptErrorType: NotMatch}
+		return nil, PromptError{PromptErrorType: NotMatch}
 	} else { // they match
-		if err := m.acclist.Decrypt(*m.prev); err != nil {
-			// decrypt account. if it fails, then return that error
-			// we clear prev, as an error here likely means wrong password, and we want another chance to enter password twice
-			m.prev = nil
-			return false, err
-		} else { // WE DECRYPTED!!! return true for success
-			return true, nil
-		}
-	}
+		ctx := context.Background()
+		var cancel context.CancelFunc
 
-	return false, nil
+		if wayacc, ok := m.acclist.(parse.WayAccountList); ok { // we add a deadline
+			// we set the timeout to the cryption time estimate provided by the cryptor, plus an extra 5 seconds leeway
+			ctx, cancel = context.WithTimeout(ctx, wayacc.CryptionTimeEstimate()+decryptionTimeoutLeeway)
+		} else { // decryption of a pure account list CAN'T POSSIBLY fail, so we just disable its cancellation ability
+			ctx = context.WithoutCancel(ctx)
+		}
+
+		// do decrypt. cancel after it's done
+		go func() {
+			m.acclist.Decrypt(ctx, *m.prev)
+
+			// if can be cancelled, do so
+			if cancel != nil {
+				cancel()
+			}
+		}()
+
+		return ctx, nil
+	}
 }

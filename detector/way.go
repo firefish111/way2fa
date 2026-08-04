@@ -53,7 +53,8 @@ func tryDetectWay(path_optional *string) (parse.WayAccountList, error) {
 		return nil, err // file doesn't exist, we have failed
 	}
 
-	defer f.Close()
+	// NOTE: whereas ordinarily we would do this, we explicitly close later on so that file descriptor is not open for Prepopulate call
+	// defer f.Close()
 
 	header := format.Header{}
 	// NOTE: we read this little endian, as format requires that
@@ -62,6 +63,9 @@ func tryDetectWay(path_optional *string) (parse.WayAccountList, error) {
 	if err = header.Validate(); err != nil {
 		return nil, err // header is invalid
 	}
+
+	// NOTE: explicit file close, see above
+	f.Close()
 
 	/* we now have a valid .way file, but we leave decoding it to the GetAccs() function */
 

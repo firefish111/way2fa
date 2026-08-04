@@ -1,6 +1,9 @@
 package parse
 
 import (
+	"context"
+	"time"
+
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/parse/cryptor"
 	"github.com/firefish111/way2fa/parse/format"
@@ -51,7 +54,7 @@ type AccountList interface {
 	//
 	// This should set a password flag in the struct containing the password in one form or another.
 	// After any operation, this password flag is CLEARED by the Recrypt() method, such that multiple operations can't be chained and so that the password doesn't reside in memory for too long.
-	Decrypt(password cryptor.PasswordHash) error
+	Decrypt(ctx context.Context, password cryptor.PasswordHash)
 
 	// Clears whatever password flag is set.
 	// Called by all meaningful operations anyway, so user need not worry, unless explicit Recryption is required (i.e. if Decrypted but no operation was executed).
@@ -84,6 +87,12 @@ type PureAccountList interface {
 
 type WayAccountList interface {
 	AccountList
+
+	// An estimate of how long decryption/encryption is supposed to take.
+	// This is how long key derivation takes plus a liberal estimate of the (de|en)cryption itself.
+	// If this is surpassed (adding a few seconds breathing room), the prompt warns the user
+	// If pure, returns 0
+	CryptionTimeEstimate() time.Duration
 
 	// Gets the ID assigned to it in the .way file.
 	GetWayTypeId() format.FileTypeId

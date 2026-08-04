@@ -5,6 +5,8 @@
 package password
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -25,6 +27,14 @@ type passwordModel struct {
 	prevRendered string                // ditto, but a rendered string (for prompt)
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
+
+	// context used for decryption.
+	// whilst this may appear to break the golden rule of "don't have contexts as a struct field"
+	// this isn't the field of the decryptor, so it doesn't
+	decryptContext context.Context
+
+	// for loading screen
+	ticks uint
 }
 
 // TODO: move to format??

@@ -42,7 +42,7 @@ func FailedAuthentication() CryptError {
 	return CryptError{
 		IsFaultOfPassword: true, // perhaps due to password, we can't know for sure
 		status:            failedAuthentication,
-		verb:              "", // verb is not used, so empty string will suffice
+		/* verb is not used */
 	}
 }
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/modules/csv_pure"
+	csv_pure "github.com/firefish111/way2fa/parse/modules/pure/csv"
 )
 
 // This function gets a list of AccountLists with empty fields.
