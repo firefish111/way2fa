@@ -81,7 +81,7 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.dirty = &insert_at // make us show the save changes? prompt
 		m.accs = slices.Insert(m.accs, insert_at, event.Acct)
-	case msgs.EncryptorMsg: // If Encrypted
+	case msgs.CryptorMsg: // If Encrypted
 		if event == msgs.DecryptedMsg { // decrypted! therefore retrieve data
 			var err error
 			m.accs, err = m.reader.GetAccs()

@@ -1,18 +1,10 @@
 package password
 
 import (
-	"context"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/firefish111/way2fa/parse"
 	"github.com/firefish111/way2fa/parse/cryptor"
-)
-
-const (
-	// how much extra leeway on top of its predicted time we give the decryption to complete before timing out
-	decryptionTimeoutLeeway = 5 * time.Second
 )
 
 // Keeps a backup rendered password prompt, in order to show the end user to make it obvious
@@ -30,8 +22,8 @@ func (m *passwordModel) prevRender() {
 }
 
 // Submit password.
-// Returns error and a context. If context is non-nil, then program is undergoing decryption, and should wait on that
-func (m *passwordModel) submit() (context.Context, error) {
+// Returns the resulting password hash, and any errors that may arise.
+func (m *passwordModel) submit() (*cryptor.PasswordHash, error) {
 	var hashed cryptor.PasswordHash
 
 	// in this scope only. done to make it obvious that THE RAW PASSWORD IS HERE.
@@ -58,27 +50,7 @@ func (m *passwordModel) submit() (context.Context, error) {
 		// we clear prev as well, as we want to reset both initial and confirmation. (the first time could've contained the mistake)
 		m.prev = nil
 		return nil, PromptError{PromptErrorType: NotMatch}
-	} else { // they match
-		ctx := context.Background()
-		var cancel context.CancelFunc
-
-		if wayacc, ok := m.acclist.(parse.WayAccountList); ok { // we add a deadline
-			// we set the timeout to the cryption time estimate provided by the cryptor, plus an extra 5 seconds leeway
-			ctx, cancel = context.WithTimeout(ctx, wayacc.CryptionTimeEstimate()+decryptionTimeoutLeeway)
-		} else { // decryption of a pure account list CAN'T POSSIBLY fail, so we just disable its cancellation ability
-			ctx = context.WithoutCancel(ctx)
-		}
-
-		// do decrypt. cancel after it's done
-		go func() {
-			m.acclist.Decrypt(ctx, *m.prev)
-
-			// if can be cancelled, do so
-			if cancel != nil {
-				cancel()
-			}
-		}()
-
-		return ctx, nil
+	} else { // they match; return key
+		return m.prev, nil
 	}
 }

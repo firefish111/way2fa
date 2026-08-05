@@ -5,8 +5,6 @@
 package password
 
 import (
-	"context"
-
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -28,13 +26,8 @@ type passwordModel struct {
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
 
-	// context used for decryption.
-	// whilst this may appear to break the golden rule of "don't have contexts as a struct field"
-	// this isn't the field of the decryptor, so it doesn't
-	decryptContext context.Context
-
-	// for loading screen
-	ticks uint
+	// so that it refuses input whilst decrypting
+	isDecrypting bool
 }
 
 // TODO: move to format??
@@ -59,12 +52,13 @@ func CreatePasswordPrompt(acclist parse.AccountList) *passwordModel {
 
 	// password model
 	ret := passwordModel{
-		acclist:     acclist,
-		field:       textbox,
-		warningOnly: false,
-		tries:       0,
-		helpModel:   help.New(),
-		helpDB:      defaultHelp(),
+		acclist:      acclist,
+		field:        textbox,
+		warningOnly:  false,
+		tries:        0,
+		helpModel:    help.New(),
+		helpDB:       defaultHelp(),
+		isDecrypting: false,
 	}
 
 	ret.helpModel.Styles.ShortDesc = styles.Faint

@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"context"
 	"time"
 
 	"github.com/firefish111/way2fa/account"
@@ -54,7 +53,7 @@ type AccountList interface {
 	//
 	// This should set a password flag in the struct containing the password in one form or another.
 	// After any operation, this password flag is CLEARED by the Recrypt() method, such that multiple operations can't be chained and so that the password doesn't reside in memory for too long.
-	Decrypt(ctx context.Context, password cryptor.PasswordHash)
+	Decrypt(password cryptor.PasswordHash) error
 
 	// Clears whatever password flag is set.
 	// Called by all meaningful operations anyway, so user need not worry, unless explicit Recryption is required (i.e. if Decrypted but no operation was executed).

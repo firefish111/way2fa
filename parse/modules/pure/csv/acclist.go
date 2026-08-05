@@ -1,4 +1,4 @@
-package csv_pure
+package csv
 
 import (
 	"fmt"
