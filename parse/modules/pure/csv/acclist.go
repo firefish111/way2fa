@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/firefish111/way2fa/account"
+	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/cryptor"
 	"github.com/gocarina/gocsv"
 )
 

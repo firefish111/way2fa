@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/firefish111/way2fa/format"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/format"
 )
 
 // This takes a file as input, to verify the validity of.

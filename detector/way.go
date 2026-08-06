@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/firefish111/way2fa/format"
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/format"
 	csv_way "github.com/firefish111/way2fa/parse/modules/way/csv"
 )
 

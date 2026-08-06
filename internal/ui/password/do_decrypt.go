@@ -4,8 +4,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/cryptor"
 )
 
 const (

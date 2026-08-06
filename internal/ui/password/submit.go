@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/firefish111/way2fa/parse/cryptor"
+	"github.com/firefish111/way2fa/cryptor"
 )
 
 // Keeps a backup rendered password prompt, in order to show the end user to make it obvious

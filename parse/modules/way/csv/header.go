@@ -3,7 +3,7 @@ package csv_way
 import (
 	"time"
 
-	"github.com/firefish111/way2fa/parse/format"
+	"github.com/firefish111/way2fa/format"
 )
 
 func (c *CsvWay) processHeader() {

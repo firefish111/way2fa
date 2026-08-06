@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/cryptor"
 )
 
 // tries = how many attempts have failed. starts out at 0

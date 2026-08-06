@@ -8,9 +8,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/donderom/bubblon"
 
+	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/internal/ui/common/msgs"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
-	"github.com/firefish111/way2fa/parse/cryptor"
 
 	"strings"
 )

@@ -14,9 +14,9 @@ package csv_way
 import (
 	"path/filepath"
 
+	"github.com/firefish111/way2fa/cryptor"
+	"github.com/firefish111/way2fa/format"
 	"github.com/firefish111/way2fa/internal/config"
-	"github.com/firefish111/way2fa/parse/cryptor"
-	"github.com/firefish111/way2fa/parse/format"
 )
 
 // holds the header, the cryptor, and the raw payload held by the file.

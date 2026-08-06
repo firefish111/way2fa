@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/firefish111/way2fa/account"
-	"github.com/firefish111/way2fa/parse/cryptor"
-	"github.com/firefish111/way2fa/parse/format"
+	"github.com/firefish111/way2fa/cryptor"
+	"github.com/firefish111/way2fa/format"
 )
 
 // Where the data was obtained from

@@ -1,7 +1,7 @@
 package csv_pure
 
 import (
-	"github.com/firefish111/way2fa/parse/cryptor"
+	"github.com/firefish111/way2fa/cryptor"
 )
 
 // This filetype is NEVER password protected, so always false.
