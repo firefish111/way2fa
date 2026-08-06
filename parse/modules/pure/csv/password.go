@@ -1,4 +1,4 @@
-package csv
+package csv_pure
 
 import (
 	"github.com/firefish111/way2fa/parse/cryptor"

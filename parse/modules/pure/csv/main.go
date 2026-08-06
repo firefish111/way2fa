@@ -6,7 +6,7 @@
 // and all your accounts are compromised.
 //
 // TODO: make whatever it is warn you when you use this that it is insecure
-package csv
+package csv_pure
 
 import (
 	"path/filepath"

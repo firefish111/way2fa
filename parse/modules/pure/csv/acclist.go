@@ -1,4 +1,4 @@
-package csv
+package csv_pure
 
 import (
 	"fmt"
@@ -42,7 +42,7 @@ func (c *CsvPure) WriteAccs(to_write []account.Account) error {
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 
 	// os.Open only opens readonly
-	f, err := os.OpenFile(c.path, os.O_WRONLY|os.O_CREATE, 0644)
+	f, err := os.Create(c.path)
 	if err != nil {
 		return fmt.Errorf("cannot access keyfile %s: %w", c.path, err)
 	}

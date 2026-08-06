@@ -9,10 +9,15 @@ import (
 	"github.com/firefish111/way2fa/internal/config"
 )
 
-// Wrapper for key and iv
+// Wrapper for key, iv, and salt.
+// We store them as explicit arrays to make marshalling in and out of bytes easier
 type AesCryptor struct {
-	Key []byte
-	Iv  []byte
+	Iv   [AesIvSize]byte
+	Salt [Argon2SaltSize]byte
+
+	// not present in binary file
+	key     [AesKeySize]byte
+	isValid bool
 }
 
 func padToBlocksize(plaintext []byte) []byte {
@@ -26,8 +31,8 @@ func padToBlocksize(plaintext []byte) []byte {
 	return append(plaintext, to_pad...)
 }
 
-func (a AesCryptor) EncryptAes(plaintext []byte) ([]byte, error) {
-	block, err := aes.NewCipher(a.Key)
+func (a AesCryptor) Encrypt(plaintext []byte) ([]byte, error) {
+	block, err := aes.NewCipher(a.key[:])
 	if err != nil {
 		return nil, err
 	}
@@ -41,12 +46,12 @@ func (a AesCryptor) EncryptAes(plaintext []byte) ([]byte, error) {
 
 	// Seal is a bit strange, in that it takes a destination pointer, but we don't need that
 	// TODO: this also takes an "authenticated additional data" pointer, which we could possibly use to authenticate the header?
-	ciphertext := gcm.Seal(nil, a.Iv, padded, nil)
+	ciphertext := gcm.Seal(nil, a.Iv[:], padded, nil)
 	return ciphertext, nil
 }
 
-func (a AesCryptor) DecryptAes(ciphertext []byte) ([]byte, error) {
-	block, err := aes.NewCipher(a.Key)
+func (a AesCryptor) Decrypt(ciphertext []byte) ([]byte, error) {
+	block, err := aes.NewCipher(a.key[:])
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +62,7 @@ func (a AesCryptor) DecryptAes(ciphertext []byte) ([]byte, error) {
 	}
 
 	// TODO: see earlier about authenticating header too
-	plaintext, err := gcm.Open(nil, a.Iv, ciphertext, nil)
+	plaintext, err := gcm.Open(nil, a.Iv[:], ciphertext, nil)
 	if err != nil {
 		// NOTE: though it's likely an error to do with the password, this doesn't eliminate
 		// the possibility that the header has been tampered with, as the GCM doesn't distinguish.
@@ -71,7 +76,7 @@ func (a AesCryptor) DecryptAes(ciphertext []byte) ([]byte, error) {
 	return unpadded, nil
 }
 
-func MakeAes(passhash PasswordHash, withCapabilities *config.DerivationCapabilities) (AesCryptor, error) {
+func RandomisedAes() (AesCryptor, error) {
 	// generate derivation salt and iv, using predetermined sizes defined in ./main.go, q.v.
 	salt, err := generateNonce(Argon2SaltSize)
 	if err != nil {
@@ -84,16 +89,34 @@ func MakeAes(passhash PasswordHash, withCapabilities *config.DerivationCapabilit
 		return AesCryptor{}, fmt.Errorf("%w; %w", CouldNotGenerateNonce("AES IV"), err)
 	}
 
+	return AesCryptor{
+		Iv:   [AesIvSize]byte(iv),
+		Salt: [Argon2SaltSize]byte(salt),
+	}, nil
+}
+
+// Set Key property to a key
+func (a *AesCryptor) DeriveKey(passhash PasswordHash, withCapabilities *config.DerivationCapabilities) {
 	// if we haven't set capabilities, we get what our computer has
 	if withCapabilities == nil {
 		capabilities := config.GetCurrentCapabilities() // pointer foolery, as reference can't exist if variable is not on stack
 		withCapabilities = &capabilities
 	}
 
-	derived := deriveKey(passhash, salt, *withCapabilities, AesKeySize)
+	a.key = deriveKey(passhash, a.Salt[:], *withCapabilities, AesKeySize)
+	a.isValid = true
+}
 
-	return AesCryptor{
-		Key: derived,
-		Iv:  iv,
-	}, nil
+// scrub the key from memory - for extra safety to prevent memory read attacks if the key may still remain in memory
+func (a *AesCryptor) Invalidate() {
+	// we set all bytes individually instead of setting the key itself because that may just change the pointer
+	for i := range a.key {
+		a.key[i] = 0xff // all high - to signify invalid
+	}
+
+	a.isValid = false
+}
+
+func (a *AesCryptor) IsValid() bool {
+	return a.isValid
 }

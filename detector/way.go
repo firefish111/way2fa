@@ -9,6 +9,7 @@ import (
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/parse"
 	"github.com/firefish111/way2fa/parse/format"
+	csv_way "github.com/firefish111/way2fa/parse/modules/way/csv"
 )
 
 // all .way files have the same name by default for consistency's sake.
@@ -25,7 +26,7 @@ const (
 func getPossibleWayFormats() map[format.FileTypeId]parse.WayAccountList {
 	return map[format.FileTypeId]parse.WayAccountList{
 		// TODO
-		// format.Csv:
+		format.Csv: &csv_way.CsvWay{},
 	}
 }
 

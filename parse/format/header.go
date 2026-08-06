@@ -49,10 +49,7 @@ type Header struct {
 	// reserved
 	_ uint16
 
-	// IV and salt, random numbers generated at encryption time, needed for decryption.
-	// if Flags.HasPassword is unset, these are both all nulls.
-	AesIv      [12]byte
-	AesKeySalt [16]byte
+	/* hereafter, salt region is found */
 }
 
 func (h Header) Validate() error {

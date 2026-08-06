@@ -19,7 +19,7 @@ func generateNonce(size_bytes uint32) ([]byte, error) {
 	return nonce, nil
 }
 
-func deriveKey(password PasswordHash, salt []byte, params config.DerivationCapabilities, size_bytes uint32) []byte {
+func deriveKey(password PasswordHash, salt []byte, params config.DerivationCapabilities, size_bytes uint32) [AesKeySize]byte {
 	key := argon2.IDKey(
 		[]byte(password),
 		salt,
@@ -29,5 +29,5 @@ func deriveKey(password PasswordHash, salt []byte, params config.DerivationCapab
 		size_bytes,
 	)
 
-	return key
+	return [AesKeySize]byte(key)
 }

@@ -22,6 +22,9 @@ const (
 // Must be kept the same between write and read, so is saved alongside plaintext to prevent upgraded hardware from messing things up.
 // Or even downgraded hardware to an extent, so long as you don't go from a supercomputer to a potato
 //
+// MemKiB is memory to be allocated in MemKiB.
+// Time is time measured in arbitrary units. Will only end up being between 1 and 5 here.
+//
 // These specific int widths are chosen because that's what argon2.IDKey expects
 type DerivationCapabilities struct {
 	MemKiB  uint32
@@ -58,12 +61,12 @@ func GetCurrentCapabilities() (dc DerivationCapabilities) {
 	dc.MemKiB = uint32(memKiB)
 
 	// spend more or less time depending on other variables
-	// between 0 and 3 seconds, more time for less memory
+	// between 0 and 3, more time for less memory
 	time := (MaxMemoryBytesLog2 - memLog2) / 2
 	// an extra 0-2 depending on threads
 	time += threads / 2
 
-	// set to have a minimum of 1 second
+	// set to have a minimum of 1
 	dc.Time = uint32(max(time, 1))
 
 	return
