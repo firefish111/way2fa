@@ -62,7 +62,7 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				m.accs = slices.Replace(m.accs, *m.dirty, *m.dirty+1)
 				fallthrough
 			case "y":
-				go m.reader.WriteAccs(m.accs)
+				go m.reader.SetAccs(m.accs)
 				m.dirty = nil
 			}
 		}

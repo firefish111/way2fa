@@ -25,7 +25,6 @@ const (
 // XXX please update when necessary
 func getPossibleWayFormats() map[format.FileTypeId]parse.WayAccountList {
 	return map[format.FileTypeId]parse.WayAccountList{
-		// TODO
 		format.Csv: &csv_way.CsvWay{},
 	}
 }

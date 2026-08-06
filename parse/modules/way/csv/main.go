@@ -42,8 +42,6 @@ func (c *CsvWay) PrepopulateFromFile(path string, isDefault bool) error {
 
 	c.path = p
 
-	c.loadFile()
-
 	return nil
 }
 

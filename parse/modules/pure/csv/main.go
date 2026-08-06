@@ -21,6 +21,7 @@ const (
 type CsvPure struct {
 	path           string
 	isDefaultStore bool
+	buffer         string
 }
 
 func (c *CsvPure) PrepopulateFromFile(path string, isDefault bool) error {

@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func (c *CsvWay) loadFile() error {
+func (c *CsvWay) Load() error {
 	f, err := os.Open(c.path)
 	if err != nil {
 		return err
@@ -44,8 +44,8 @@ func (c *CsvWay) loadFile() error {
 	return nil
 }
 
-// opposite of loadFile()
-func (c *CsvWay) dumpFile() error {
+// opposite of Load()
+func (c *CsvWay) Save() error {
 	f, err := os.Create(c.path)
 	if err != nil {
 		return err

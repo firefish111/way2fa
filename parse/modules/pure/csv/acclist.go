@@ -1,8 +1,6 @@
 package csv_pure
 
 import (
-	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/firefish111/way2fa/account"
@@ -19,40 +17,27 @@ func (c *CsvPure) GetAccs() ([]account.Account, error) {
 	}
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 
-	f, err := os.Open(c.path)
-	if err != nil {
-		return nil, fmt.Errorf("cannot access keyfile %s: %w", c.path, err)
-	}
-
-	defer f.Close() // wait until end of function to close
-
 	var out []account.Account
 
-	if err := gocsv.UnmarshalFile(f, &out); err != nil {
+	if err := gocsv.UnmarshalString(c.buffer, &out); err != nil {
 		return nil, err
 	}
 
 	return out, nil
 }
 
-func (c *CsvPure) WriteAccs(to_write []account.Account) error {
+func (c *CsvPure) SetAccs(to_set []account.Account) error {
 	if !c.IsDecrypted() {
-		return cryptor.NotDecrypted("write Accounts")
+		return cryptor.NotDecrypted("set Accounts")
 	}
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 
-	// os.Open only opens readonly
-	f, err := os.Create(c.path)
+	buf, err := gocsv.MarshalString(&to_set)
 	if err != nil {
-		return fmt.Errorf("cannot access keyfile %s: %w", c.path, err)
-	}
-
-	defer f.Close() // wait until end of function to close
-
-	if err := gocsv.MarshalFile(&to_write, f); err != nil {
 		return err
 	}
 
+	c.buffer = buf
 	return nil
 }
 

@@ -41,9 +41,9 @@ func (c *CsvWay) GetAccs() ([]account.Account, error) {
 	return out, nil
 }
 
-func (c *CsvWay) WriteAccs(to_write []account.Account) error {
+func (c *CsvWay) SetAccs(to_set []account.Account) error {
 	if !c.IsDecrypted() {
-		return cryptor.NotDecrypted("write Accounts")
+		return cryptor.NotDecrypted("set Accounts")
 	}
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 
@@ -52,7 +52,7 @@ func (c *CsvWay) WriteAccs(to_write []account.Account) error {
 	var err error
 
 	// marshal to CSV
-	plaintext, err := gocsv.MarshalBytes(to_write)
+	plaintext, err := gocsv.MarshalBytes(to_set)
 	if err != nil {
 		return err
 	}
@@ -71,10 +71,7 @@ func (c *CsvWay) WriteAccs(to_write []account.Account) error {
 	}
 
 	c.payload = encrypted
-
-	// TODO: optimise with Load() and Dump() methods
-	err = c.dumpFile()
-	return err
+	return nil
 }
 
 func (c *CsvWay) GetSource() (parse.DataSource, string) {

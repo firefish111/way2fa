@@ -25,17 +25,23 @@ const (
 //
 // detection issues are NOT errors, and ought not be treated as such.
 type AccountList interface {
-	// Retrieve accounts from storage
+	// Load all accounts from storage
+	Load() error
+
+	// Save all accounts to storage
+	Save() error
+
+	// Get list of accounts
 	GetAccs() ([]account.Account, error)
+
+	// Set list of accounts
+	SetAccs(to_set []account.Account) error
 
 	// Returns a string detailing the source of the data, to go on the titlebar
 	GetSource() (DataSource, string)
 
 	// Returns a string containing the path of the file this is attached to.
 	GetSourceFilePath() string
-
-	// Write accounts to storage
-	WriteAccs(to_write []account.Account) error
 
 	// Prepopulate all fields with those of the given file.
 	// Completely erases what was already there.

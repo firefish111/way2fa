@@ -46,6 +46,12 @@ func main() {
 		panic(fmt.Errorf("Automatic detection failed, aborting.\n\n%w\n\nHINT: create a default file in %s.\n", err, config.ConfPath))
 	}
 
+	// load accounts from file
+	err = store.Load()
+	if err != nil {
+		panic(fmt.Errorf("Failed to load store: %w", err))
+	}
+
 	// call the ui
 	model, err := ui.Create(store)
 	if err != nil {
@@ -70,5 +76,12 @@ func main() {
 	ctrller = doneModel.(bubblon.Controller)
 	if ctrller.Err != nil { // when bubblon.Fail is called, the error is put in Err, so it can gracefully exit tea
 		panic(fmt.Errorf("Runtime error during model execution:\n\t%w\n", ctrller.Err))
+	}
+
+	// save accounts to file.
+	// done at last, after ui has exited
+	err = store.Save()
+	if err != nil {
+		panic(fmt.Errorf("Failed to save store: %w", err))
 	}
 }
