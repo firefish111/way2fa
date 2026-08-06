@@ -16,11 +16,23 @@ import (
 // simple, one line help. used to show basic functions
 func (m model) ShortHelp() []key.Binding {
 	if m.dirty == nil {
-		return []key.Binding{
-			m.helpDB["newfalse"],
-			m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
-			m.helpDB["quit"],
+		var helps []key.Binding
+		if m.reader.IsPasswordProtected() {
+			helps = []key.Binding{
+				m.helpDB["newfalse"],
+				m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
+				m.helpDB["save"],
+				m.helpDB["quit"+strconv.FormatBool(m.saveState == saved)],
+			}
+		} else {
+			helps = []key.Binding{
+				m.helpDB["newfalse"],
+				m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
+				m.helpDB["quit"+strconv.FormatBool(m.saveState == saved)],
+			}
 		}
+
+		return helps
 	} else {
 		return []key.Binding{
 			m.helpDB["accept"],
@@ -71,8 +83,17 @@ func defaultHelp() map[string]key.Binding {
 			key.WithKeys("p"),
 			key.WithHelp(styles.Off.Render("p"), "peek"),
 		),
-		"quit": key.NewBinding(
+		"save": key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp(styles.None.Render("s"), "save (asks for password)"),
+		),
+		"quittrue": key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
 			key.WithHelp(styles.None.Render("q"), "quit"),
-		)}
+		),
+		"quitfalse": key.NewBinding(
+			key.WithKeys("q", "ctrl+c"),
+			key.WithHelp(styles.None.Render("q"), styles.Discard.Render("quit + discard")),
+		),
+	}
 }

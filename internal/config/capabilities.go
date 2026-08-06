@@ -94,6 +94,11 @@ func (dc DerivationCapabilities) Pack() (packed DerivationCapabilitiesPacked) {
 }
 
 func (packed DerivationCapabilitiesPacked) Unpack() (dc DerivationCapabilities) {
+	// if null, get current
+	if packed == 0 {
+		return GetCurrentCapabilities()
+	}
+
 	dc.MemKiB = 1 << uint32((packed & 0x00ff))
 	dc.Time = uint32((packed & 0x0f00) >> 8)
 	dc.Threads = uint8((packed & 0xff00) >> 12)

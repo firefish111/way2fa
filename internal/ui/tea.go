@@ -39,8 +39,26 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg: // handle keypress
 		if m.dirty == nil {
 			switch event.String() {
+			case "s":
+				m.saveState = saveOngoing
+
+				// TODO: break out into new function
+				passwordPrompt := password.CreatePasswordPrompt(m.reader)
+
+				// this is the message that we want to send.
+				// depends on passwordPrompt's value.
+				var toSend tea.Cmd
+
+				if passwordPrompt != nil { // i.e. there is a password prompt we need to use
+					toSend = bubblon.Open(passwordPrompt)
+				} else {
+					// we have proven above that if there is no password prompt needed, then it must already be decrypted, so we send the message
+					toSend = msgs.SendEncryptor(msgs.DecryptedMsg)
+				}
+
+				return m, toSend
 			case "q":
-				return m, tea.Quit // bye bye (does broadcast message, see above)
+				return m, tea.Quit
 			case "c":
 				return m, bubblon.Open(creation.DefaultForm())
 			case "p":
@@ -62,7 +80,7 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				m.accs = slices.Replace(m.accs, *m.dirty, *m.dirty+1)
 				fallthrough
 			case "y":
-				go m.reader.SetAccs(m.accs)
+				m.saveState = unsaved
 				m.dirty = nil
 			}
 		}
@@ -83,16 +101,24 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 		m.accs = slices.Insert(m.accs, insert_at, event.Acct)
 	case msgs.CryptorMsg: // If Encrypted
 		if event == msgs.DecryptedMsg { // decrypted! therefore retrieve data
-			var err error
-			m.accs, err = m.reader.GetAccs()
-			if err != nil {
-				return m, bubblon.Fail(err) // pass up error
-			}
+			if m.saveState == saveOngoing {
+				m.saveState = saved
+				err := m.reader.SetAccs(m.accs)
+				if err != nil {
+					return m, bubblon.Fail(err) // pass up error
+				}
+			} else {
+				var err error
+				m.accs, err = m.reader.GetAccs()
+				if err != nil {
+					return m, bubblon.Fail(err) // pass up error
+				}
 
-			// Repair all. Just in case our reader messed something up.
-			for ix := range m.accs {
-				// can't use reassignment, because this takes a mutable pointer
-				m.accs[ix].RepairValues()
+				// Repair all. Just in case our reader messed something up.
+				for ix := range m.accs {
+					// can't use reassignment, because this takes a mutable pointer
+					m.accs[ix].RepairValues()
+				}
 			}
 		}
 	}
@@ -122,6 +148,10 @@ func (m model) View() string {
 
 	helpview := m.helpModel.View(m) // using self as a help model to access internal state
 	s.WriteString(styles.SidePad.Render(helpview))
+	if m.saveState != saved {
+		s.WriteRune('\n')
+		s.WriteString(styles.SidePad.Render("Unsaved changes! Please save before you quit."))
+	}
 
 	s.WriteRune('\n')
 

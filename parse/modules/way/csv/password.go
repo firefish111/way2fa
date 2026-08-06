@@ -29,7 +29,9 @@ func (c *CsvWay) Decrypt(password cryptor.PasswordHash) error {
 		return errors.New("CsvWay.Decrypt(): Key derivation failed")
 	}
 
-	return nil
+	// verify that password is correct
+	_, err := c.crypt.Decrypt(c.payload)
+	return err
 }
 
 func (c *CsvWay) Recrypt() {

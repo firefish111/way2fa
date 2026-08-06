@@ -1,6 +1,7 @@
 package password
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -79,15 +80,18 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 
 		err := event.err
 		if err == nil { // we did it!!
-			return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
+			if event.didTimeout {
+				m.supplMsg = fmt.Sprintf("Decryption timed out (waited %dms) Try again?", event.haveWaited/time.Millisecond)
+			} else {
+				return m, tea.Sequence(bubblon.Close, msgs.SendEncryptor(msgs.DecryptedMsg)) // broadcast this to entire world
+			}
 		}
 
-		switch outerr := err.(type) {
 		// if we got a decryption error that is because the password was wrong (that is they matched, but decryption failed),
 		// then we sneakily replace the error, as that is not a fail condition: unless that happens 3 times.
 		// in which case, we replace the error with our own
-		case cryptor.CryptError:
-			if outerr.IsFaultOfPassword { // if it is the fault of the password that we got this error
+		if cryptErr, ok := errors.AsType[cryptor.CryptError](err); ok {
+			if cryptErr.IsFaultOfPassword { // if it is the fault of the password that we got this error
 				// increase try count; if we surpassed max count
 				if m.tries++; m.tries >= PasswordTriesCount {
 					err = PromptError{PromptErrorType: OutOfTries}
@@ -96,13 +100,13 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				// tries have actually increased, so:
-				m.supplMsg = fmt.Sprintf("%v\nPlease try again.\n\tAttempt %d of %d", err, m.tries+1, PasswordTriesCount)
+				m.prev = nil
+				m.supplMsg = fmt.Sprintf("Password incorrect.\nPlease try again.\n\tAttempt %d of %d", m.tries+1, PasswordTriesCount)
 			}
 		}
 
-		if event.didTimeout {
-			m.supplMsg = fmt.Sprintf("Decryption timed out (waited %dms) Try again?", event.haveWaited/time.Millisecond)
-		}
+		// decryption didn't work, undo what we tried to do
+		m.acclist.Recrypt()
 
 		// pass up error if we need to
 		if err != nil {

@@ -2,6 +2,7 @@ package csv_way
 
 import (
 	"encoding/base64"
+	"fmt"
 	"path/filepath"
 
 	"github.com/firefish111/way2fa/account"
@@ -18,6 +19,11 @@ func (c *CsvWay) GetAccs() ([]account.Account, error) {
 	}
 	defer c.Recrypt() // recrypt at end. defer is filo stack, so this is last thing
 
+	// if no payload or payload is nil (check included in len), just return empty array
+	if len(c.payload) == 0 {
+		return []account.Account{}, nil
+	}
+
 	// this is the csv text
 	var plaintext []byte
 	var err error
@@ -29,7 +35,7 @@ func (c *CsvWay) GetAccs() ([]account.Account, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetAccs: decryption failed; %w", err)
 	}
 
 	var out []account.Account

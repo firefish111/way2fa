@@ -12,6 +12,14 @@ const (
 	ReportedAppName = "way2fa"
 )
 
+type saveState uint
+
+const (
+	saved saveState = iota
+	saveOngoing
+	unsaved
+)
+
 // The current state of the app. This implements tea.Model
 // - helpModel: 	the help renderer
 // - helpDB:			the list of help bindings
@@ -26,6 +34,7 @@ type model struct {
 	accs      []account.Account
 	peek      bool // is in peek mode
 	dirty     *int // where has accs changed
+	saveState saveState
 }
 
 func Create(list parse.AccountList) (model, error) {
@@ -36,6 +45,7 @@ func Create(list parse.AccountList) (model, error) {
 		accs:      nil,
 		peek:      false,
 		dirty:     nil,
+		saveState: saved,
 	}
 
 	ret.helpModel.Styles.ShortDesc = styles.Faint

@@ -74,5 +74,12 @@ var Title = lipgloss.NewStyle().
 
 var Supplement = lipgloss.NewStyle().
 	Italic(true).
-	Padding(2, 4).
+	Padding(1, 4).
 	Foreground(lipgloss.Color("9"))
+
+var Discard = lipgloss.NewStyle().
+	Padding(0, 1).
+	Foreground(lipgloss.Color("15")).
+	Background(lipgloss.Color("124")).
+	Bold(true).
+	Underline(true)

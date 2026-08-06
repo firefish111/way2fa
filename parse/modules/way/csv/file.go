@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/firefish111/way2fa/cryptor"
 )
 
 func (c *CsvWay) Load() error {
@@ -28,10 +30,16 @@ func (c *CsvWay) Load() error {
 	// understand the header
 	c.processHeader()
 
-	// load cryptor
-	err = binary.Read(f, binary.LittleEndian, &c.crypt)
+	// load cryptor. have to do fields separately due to the existance of private fields
+	err = binary.Read(f, binary.LittleEndian, &c.crypt.Iv)
+	if err == nil { // only continue if Iv didn't fail
+		err = binary.Read(f, binary.LittleEndian, &c.crypt.Salt)
+	}
+
 	if err != nil {
-		return err
+		// error here is because cryptor is not present in the file, so we create random keys
+		c.crypt, err = cryptor.RandomisedAes()
+		return err // return our cryptor generation error
 	}
 
 	// read payload
@@ -62,7 +70,11 @@ func (c *CsvWay) Save() error {
 	}
 
 	// write cryptor
-	err = binary.Write(f, binary.LittleEndian, c.crypt)
+	err = binary.Write(f, binary.LittleEndian, &c.crypt.Iv)
+	if err == nil { // only continue if Iv didn't fail
+		err = binary.Write(f, binary.LittleEndian, &c.crypt.Salt)
+	}
+
 	if err != nil {
 		return err
 	}

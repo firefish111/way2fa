@@ -45,7 +45,7 @@ func (m *passwordModel) submit() (*cryptor.PasswordHash, error) {
 
 		// nothing eventful happened
 		return nil, nil
-	} else if hashed.Matches(*m.prev) {
+	} else if !hashed.Matches(*m.prev) {
 		// if passwords don't match.
 		// we clear prev as well, as we want to reset both initial and confirmation. (the first time could've contained the mistake)
 		m.prev = nil
