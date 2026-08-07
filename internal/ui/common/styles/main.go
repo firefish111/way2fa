@@ -88,3 +88,8 @@ var Discard = lipgloss.NewStyle().
 var Header = lipgloss.NewStyle().
 	Bold(true).
 	Foreground(lipgloss.Color("208"))
+
+var NoOtp = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("218")).
+	Italic(true).
+	Padding(1, 4)

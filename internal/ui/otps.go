@@ -19,8 +19,12 @@ func (m model) writeOTPs(s *strings.Builder) {
 
 	s.WriteRune('\n')
 
-	// separated the table generation code away from here, see ./table.go
-	s.WriteString(styles.BigIndent.Render(m.getTable().String()))
+	if len(m.accs) == 0 {
+		s.WriteString(styles.NoOtp.Render("No accounts yet... try creating one!"))
+	} else {
+		// separated the table generation code away from here, see ./table.go
+		s.WriteString(styles.BigIndent.Render(m.getTable().String()))
+	}
 }
 
 // This is the generator for the actual account table.

@@ -29,6 +29,9 @@ type passwordModel struct {
 
 	// so that it refuses input whilst decrypting
 	isDecrypting bool
+
+	// ticks: used for loading animation
+	ticks uint8
 }
 
 // TODO: move to format??

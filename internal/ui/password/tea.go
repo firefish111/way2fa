@@ -17,7 +17,7 @@ import (
 )
 
 func (m passwordModel) Init() tea.Cmd {
-	// we want a blinking curs"Please wait
+	// we want a blinking cursor
 	return textinput.Blink
 }
 
@@ -50,7 +50,8 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			// after submit, we clear input field
 			m.field.Reset()
 
-			if hashed != nil { // we got it decrypted!!
+			if hashed != nil { // we have a possible password
+				m.isDecrypting = true
 				// do the decrypt; works as a bubbletea command, which is run concurrently
 				return m, doDecrypt(m.acclist, *hashed)
 			}
@@ -73,6 +74,7 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case msgs.TickMsg: // our own custom tick message struct (just a typedef)
+		m.ticks++             // timekeeping for loading animation
 		return m, msgs.Tick() // tick again. this will be executed, and after it times out, update will be called again
 	case didDecryptResultMsg:
 		// no matter what happens, after this we won't be decrypting
@@ -125,13 +127,16 @@ func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+const (
+	spinningWheel = "|/-\\"
+)
+
 func (m passwordModel) View() string {
 	var s strings.Builder
 
 	if m.isDecrypting {
 		s.WriteString(styles.Error.Render(
-			// FIXME: fix loading animation
-			fmt.Sprintf("Please wait, decrypting... %s", "-\\|/"),
+			fmt.Sprintf("Please wait, decrypting... %c", spinningWheel[m.ticks%uint8(len(spinningWheel))]),
 		))
 	} else if m.warningOnly {
 		s.WriteString(styles.Title.Render("Retrieving from: "))
