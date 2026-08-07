@@ -48,9 +48,11 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 		} else if m.selected == nil {
 			switch event.String() {
 			case "s":
-				m.saveState = saveOngoing
+				if m.saveState != saved {
+					m.saveState = saveOngoing
 
-				return m, m.openPasswordPrompt("Re-enter existing password to save")
+					return m, m.openPasswordPrompt("Re-enter existing password to save")
+				}
 			case "q":
 				// if we want to quit, but have unsaved changes, show the exit prompt
 				switch m.saveState {

@@ -141,9 +141,7 @@ func (m passwordModel) View() string {
 		s.WriteString(styles.Error.Render(
 			styles.Title.Render("WARNING: ") +
 				"\n\nThis account list is not password protected.\n" +
-				// TODO: once passwording is done
-				//"Please switch to a password-protected format!",
-				"Password-protected formats are coming soon.",
+				"Please switch to a password-protected format, using the -export flag.",
 		))
 	} else {
 		// whether this is first or second entering

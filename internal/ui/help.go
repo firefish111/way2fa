@@ -22,17 +22,17 @@ func (m model) ShortHelp() []key.Binding {
 		}
 	} else if m.selected == nil {
 		var helps []key.Binding
-		if m.reader.IsPasswordProtected() {
+		if m.saveState == saved {
 			helps = []key.Binding{
 				m.helpDB["newfalse"],
 				m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
-				m.helpDB["save"],
 				m.helpDB["quit"+strconv.FormatBool(m.saveState == saved)],
 			}
 		} else {
 			helps = []key.Binding{
 				m.helpDB["newfalse"],
 				m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
+				m.helpDB["save"+strconv.FormatBool(m.reader.IsPasswordProtected())],
 				m.helpDB["quit"+strconv.FormatBool(m.saveState == saved)],
 			}
 		}
@@ -88,9 +88,13 @@ func defaultHelp() map[string]key.Binding {
 			key.WithKeys("p"),
 			key.WithHelp(styles.Off.Render("p"), "peek"),
 		),
-		"save": key.NewBinding(
+		"savetrue": key.NewBinding(
 			key.WithKeys("s"),
 			key.WithHelp(styles.None.Render("s"), "save (asks for password)"),
+		),
+		"savefalse": key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp(styles.None.Render("s"), "save"),
 		),
 		"quittrue": key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
