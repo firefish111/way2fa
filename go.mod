@@ -10,6 +10,8 @@ require (
 	github.com/donderom/bubblon v1.2.1
 	github.com/gocarina/gocsv v0.0.0-20260628180327-50907998929c
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
+	golang.org/x/crypto v0.54.0
 )
 
 require (
@@ -25,10 +27,10 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
-	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
-	github.com/mattn/go-isatty v0.0.23 // indirect
+	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
-	github.com/mattn/go-runewidth v0.0.24 // indirect
+	github.com/mattn/go-runewidth v0.0.27 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect

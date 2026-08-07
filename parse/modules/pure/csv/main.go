@@ -9,7 +9,6 @@
 package csv_pure
 
 import (
-	"github.com/firefish111/way2fa/internal/config"
 	"path/filepath"
 )
 
@@ -22,21 +21,11 @@ const (
 type CsvPure struct {
 	path           string
 	isDefaultStore bool
+	buffer         string
 }
 
-func (c *CsvPure) PrepopulateDefault() error {
-	c.isDefaultStore = true // is default store
-
-	c.path = filepath.Join(
-		config.ConfPath,
-		CsvPureFilename,
-	)
-
-	return nil // no way to error
-}
-
-func (c *CsvPure) PrepopulateFromFile(path string) error {
-	c.isDefaultStore = false // is not default store
+func (c *CsvPure) PrepopulateFromFile(path string, isDefault bool) error {
+	c.isDefaultStore = isDefault
 	p, err := filepath.Abs(path)
 	if err != nil {
 		return err
@@ -44,5 +33,14 @@ func (c *CsvPure) PrepopulateFromFile(path string) error {
 
 	c.path = p
 
+	return nil
+}
+
+func (c *CsvPure) GetDefaultFilename() string {
+	return CsvPureFilename
+}
+
+// buffer gets rewritten every time, nothing to populate
+func (c *CsvPure) PopulateNew() error {
 	return nil
 }

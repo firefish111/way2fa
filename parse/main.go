@@ -1,8 +1,11 @@
 package parse
 
 import (
+	"time"
+
 	"github.com/firefish111/way2fa/account"
-	"github.com/firefish111/way2fa/parse/encryption"
+	"github.com/firefish111/way2fa/cryptor"
+	"github.com/firefish111/way2fa/format"
 )
 
 // Where the data was obtained from
@@ -22,8 +25,17 @@ const (
 //
 // detection issues are NOT errors, and ought not be treated as such.
 type AccountList interface {
-	// Retrieve accounts from storage
+	// Load all accounts from storage
+	Load() error
+
+	// Save all accounts to storage
+	Save() error
+
+	// Get list of accounts
 	GetAccs() ([]account.Account, error)
+
+	// Set list of accounts
+	SetAccs(to_set []account.Account) error
 
 	// Returns a string detailing the source of the data, to go on the titlebar
 	GetSource() (DataSource, string)
@@ -31,26 +43,9 @@ type AccountList interface {
 	// Returns a string containing the path of the file this is attached to.
 	GetSourceFilePath() string
 
-	// Write accounts to storage
-	WriteAccs(to_write []account.Account) error
-
 	// Prepopulate all fields with those of the given file.
 	// Completely erases what was already there.
-	PrepopulateFromFile(path string) error
-
-	// Prepopulate all fields with those of the default file.
-	// Completely erases what was already there.
-	//
-	// Designed to be used in the detector package.
-	PrepopulateDefault() error
-
-	// Detect whether the account list is of the correct format.
-	// If is a .way file then this checks whether it is of the correct subformat.
-	//
-	// NOTE: this may not necessarily mean that there are no errors in the format,
-	// only that basic header checks and filetype checks pass.
-	// Therefore, does not return error: as an invalid filetype ought not be an error, only a signal to move to the next filetype.
-	Validate() bool
+	PrepopulateFromFile(path string, isDefault bool) error
 
 	// Whether is password protected: is used to trigger the password prompt
 	//
@@ -58,13 +53,13 @@ type AccountList interface {
 	IsPasswordProtected() bool
 
 	// Decrypt. This needs to be done (ideally immediately) before any of the meaningful operations (i.e. GetAccs, WriteAccs, etc).
-	// If IsPasswordProtected() returns false, this should not error, as it is prepetually decrypted.
+	// If IsPasswordProtected() returns false, this should not error, as it is perpetually decrypted.
 	//
 	// Is idempotent: in that if already in decrypted state, should do nothing and not error.
 	//
 	// This should set a password flag in the struct containing the password in one form or another.
 	// After any operation, this password flag is CLEARED by the Recrypt() method, such that multiple operations can't be chained and so that the password doesn't reside in memory for too long.
-	Decrypt(password encryption.PasswordHash) error
+	Decrypt(password cryptor.PasswordHash) error
 
 	// Clears whatever password flag is set.
 	// Called by all meaningful operations anyway, so user need not worry, unless explicit Recryption is required (i.e. if Decrypted but no operation was executed).
@@ -78,4 +73,38 @@ type AccountList interface {
 	// If IsPasswordProtected() returns false, this should always return true, as it is prepetually decrypted.
 	// See Decrypt(string) for use.
 	IsDecrypted() bool
+
+	// Creates a new file from scratch, populating fields anew
+	PopulateNew() error
+}
+
+// the other, more specific interfaces
+
+type PureAccountList interface {
+	AccountList
+
+	// Detect whether the account list is of the correct format.
+	//
+	// NOTE: this may not necessarily mean that there are no errors in the format, only that basic header checks and filetype checks pass.
+	// Therefore, does not return error: as an invalid filetype ought not be an error, only a signal to move to the next filetype.
+	Detect() bool
+
+	// obtain the default filename it's expecting. see detector for more info
+	GetDefaultFilename() string
+}
+
+type WayAccountList interface {
+	AccountList
+
+	// An estimate of how long decryption/encryption is supposed to take.
+	// This is how long key derivation takes plus a liberal estimate of the (de|en)cryption itself.
+	// If this is surpassed (adding a few seconds breathing room), the prompt warns the user
+	// If pure, returns 0
+	CryptionTimeEstimate() time.Duration
+
+	// Gets the ID assigned to it in the .way file.
+	GetWayTypeId() format.FileTypeId
+
+	// Sets whether the account list is password-protected.
+	SetPasswordProtected(isPasswordProtected bool)
 }

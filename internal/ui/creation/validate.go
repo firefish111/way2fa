@@ -13,7 +13,7 @@ func keyifyKey(inp string) string {
 	return strings.ReplaceAll(strings.ToUpper(inp), " ", "")
 }
 
-// trim initial @ signs from account id, as those arer implicit and added later in UI only
+// trim initial @ signs from account id, as those are implicit and added later in UI only
 func handlifyAcctId(inp string) string {
 	return strings.TrimLeft(inp, "@")
 }

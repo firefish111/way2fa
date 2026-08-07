@@ -15,12 +15,29 @@ import (
 
 // simple, one line help. used to show basic functions
 func (m model) ShortHelp() []key.Binding {
-	if m.dirty == nil {
+	if m.saveState == tryingExit {
 		return []key.Binding{
-			m.helpDB["newfalse"],
-			m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
-			m.helpDB["quit"],
+			m.helpDB["forceexit"],
+			m.helpDB["goback"],
 		}
+	} else if m.selected == nil {
+		var helps []key.Binding
+		if m.saveState == saved {
+			helps = []key.Binding{
+				m.helpDB["newfalse"],
+				m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
+				m.helpDB["quit"+strconv.FormatBool(m.saveState == saved)],
+			}
+		} else {
+			helps = []key.Binding{
+				m.helpDB["newfalse"],
+				m.helpDB["peek"+strconv.FormatBool(m.peek)], // jank, because no ternary statement
+				m.helpDB["save"+strconv.FormatBool(m.reader.IsPasswordProtected())],
+				m.helpDB["quit"+strconv.FormatBool(m.saveState == saved)],
+			}
+		}
+
+		return helps
 	} else {
 		return []key.Binding{
 			m.helpDB["accept"],
@@ -71,8 +88,29 @@ func defaultHelp() map[string]key.Binding {
 			key.WithKeys("p"),
 			key.WithHelp(styles.Off.Render("p"), "peek"),
 		),
-		"quit": key.NewBinding(
+		"savetrue": key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp(styles.None.Render("s"), "save (asks for password)"),
+		),
+		"savefalse": key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp(styles.None.Render("s"), "save"),
+		),
+		"quittrue": key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
 			key.WithHelp(styles.None.Render("q"), "quit"),
-		)}
+		),
+		"quitfalse": key.NewBinding(
+			key.WithKeys("q", "ctrl+c"),
+			key.WithHelp(styles.None.Render("q"), styles.Discard.Render("quit + discard")),
+		),
+		"forceexit": key.NewBinding(
+			key.WithKeys("y"),
+			key.WithHelp(styles.None.Render("y"), styles.Discard.Render("force quit without saving")),
+		),
+		"goback": key.NewBinding(
+			key.WithKeys("n"),
+			key.WithHelp(styles.None.Render("n"), "go back"),
+		),
+	}
 }

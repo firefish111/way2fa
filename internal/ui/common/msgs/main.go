@@ -34,16 +34,16 @@ func SendAcct(acct account.Account) tea.Cmd {
 }
 
 // Enum that is broadcast whenever AccountList is encrypted/decrypted.
-type EncryptorMsg int
+type CryptorMsg int
 
 const (
-	DecryptedMsg EncryptorMsg = iota
+	DecryptedMsg CryptorMsg = iota
 	EncryptedMsg
 	AuthFailedMsg
 )
 
 // Sends the specified static Encryptor message
-func SendEncryptor(toSend EncryptorMsg) tea.Cmd {
+func SendEncryptor(toSend CryptorMsg) tea.Cmd {
 	return func() tea.Msg {
 		return toSend
 	}

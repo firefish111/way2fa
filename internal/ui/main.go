@@ -12,6 +12,19 @@ const (
 	ReportedAppName = "way2fa"
 )
 
+type saveState uint
+
+const (
+	// saved
+	saved saveState = iota
+	// we have requested password in order to save
+	saveOngoing
+	// unsaved changes exist
+	unsaved
+	// show "exit without saving?" prompt
+	tryingExit
+)
+
 // The current state of the app. This implements tea.Model
 // - helpModel: 	the help renderer
 // - helpDB:			the list of help bindings
@@ -25,7 +38,8 @@ type model struct {
 	reader    parse.AccountList
 	accs      []account.Account
 	peek      bool // is in peek mode
-	dirty     *int // where has accs changed
+	selected  *int // where has accs changed
+	saveState saveState
 }
 
 func Create(list parse.AccountList) (model, error) {
@@ -35,7 +49,8 @@ func Create(list parse.AccountList) (model, error) {
 		reader:    list,
 		accs:      nil,
 		peek:      false,
-		dirty:     nil,
+		selected:  nil,
+		saveState: saved,
 	}
 
 	ret.helpModel.Styles.ShortDesc = styles.Faint

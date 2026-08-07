@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/firefish111/way2fa/parse/encryption"
+	"github.com/firefish111/way2fa/cryptor"
 )
 
 // Keeps a backup rendered password prompt, in order to show the end user to make it obvious
@@ -22,41 +22,35 @@ func (m *passwordModel) prevRender() {
 }
 
 // Submit password.
-// Returns error and success status: if true, then program can exit.
-func (m *passwordModel) submit() (bool, error) {
-	var hashed encryption.PasswordHash
+// Returns the resulting password hash, and any errors that may arise.
+func (m *passwordModel) submit() (*cryptor.PasswordHash, error) {
+	var hashed cryptor.PasswordHash
 
 	// in this scope only. done to make it obvious that THE RAW PASSWORD IS HERE.
 	// we want the ACTUAL PASSWORD to be gc'd asap, so any potential memory vulnerabilities are harder
 	{
 		raw := m.field.Value()
 		if pLen := len(raw); pLen > PasswordMaxLen {
-			return false, PromptError{PromptErrorType: TooLong, passlen: pLen}
+			return nil, PromptError{PromptErrorType: TooLong, passlen: pLen}
 		} else if pLen == 0 { // is password empty?
-			return false, nil // do absolutely nothing
+			return nil, nil // do absolutely nothing
 		}
-		hashed = encryption.HashPassword(raw)
+		hashed = cryptor.HashPassword(raw)
 	}
 
 	if m.prev == nil { // if this is our first go
 		// can't take pointer without a binding
 		m.prev = &hashed // store current hashed password into a "previous" field
 		m.prevRender()   // render previous text
-	} else if hashed != *m.prev {
+
+		// nothing eventful happened
+		return nil, nil
+	} else if !hashed.Matches(*m.prev) {
 		// if passwords don't match.
 		// we clear prev as well, as we want to reset both initial and confirmation. (the first time could've contained the mistake)
 		m.prev = nil
-		return false, PromptError{PromptErrorType: NotMatch}
-	} else { // they match
-		if err := m.acclist.Decrypt(*m.prev); err != nil {
-			// decrypt account. if it fails, then return that error
-			// we clear prev, as an error here likely means wrong password, and we want another chance to enter password twice
-			m.prev = nil
-			return false, err
-		} else { // WE DECRYPTED!!! return true for success
-			return true, nil
-		}
+		return nil, PromptError{PromptErrorType: NotMatch}
+	} else { // they match; return key
+		return m.prev, nil
 	}
-
-	return false, nil
 }

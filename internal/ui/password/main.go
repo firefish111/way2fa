@@ -1,4 +1,4 @@
-// Package containind code for the password prompt.
+// Package containing code for the password prompt.
 // This is needed every time some a major operation is performed to the data file, such that it needs to be briefly decrypted.
 //
 // This is a submodel, which is all handled by bubblon
@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/encryption"
 )
 
 // tries = how many attempts have failed. starts out at 0
@@ -21,10 +21,14 @@ type passwordModel struct {
 	field        textinput.Model
 	warningOnly  bool // whether to only show a warning and no password
 	tries        uint
-	prev         *encryption.PasswordHash // previous password prompt, nil if only on first try
-	prevRendered string                   // ditto, but a rendered string (for prompt)
+	prev         *cryptor.PasswordHash // previous password prompt, nil if only on first try
+	prevRendered string                // ditto, but a rendered string (for prompt)
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
+	title    string // title of the password prompt
+
+	// so that it refuses input whilst decrypting
+	isDecrypting bool
 }
 
 // TODO: move to format??
@@ -39,7 +43,7 @@ const (
 //
 // Can return nil, in which case no password prompt is required: this happens only if the
 // list is already decrypted.
-func CreatePasswordPrompt(acclist parse.AccountList) *passwordModel {
+func CreatePasswordPrompt(acclist parse.AccountList, title string) *passwordModel {
 	// create a textbox
 	textbox := textinput.New()
 	textbox.Focus() // we want it focussed, lest all keypressees will be dropped
@@ -49,12 +53,14 @@ func CreatePasswordPrompt(acclist parse.AccountList) *passwordModel {
 
 	// password model
 	ret := passwordModel{
-		acclist:     acclist,
-		field:       textbox,
-		warningOnly: false,
-		tries:       0,
-		helpModel:   help.New(),
-		helpDB:      defaultHelp(),
+		acclist:      acclist,
+		field:        textbox,
+		warningOnly:  false,
+		tries:        0,
+		helpModel:    help.New(),
+		helpDB:       defaultHelp(),
+		isDecrypting: false,
+		title:        title,
 	}
 
 	ret.helpModel.Styles.ShortDesc = styles.Faint

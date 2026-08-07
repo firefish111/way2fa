@@ -4,58 +4,43 @@
 package detector
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/firefish111/way2fa/format"
 	"github.com/firefish111/way2fa/parse"
-	"github.com/firefish111/way2fa/parse/modules/csv_pure"
 )
-
-// This function gets a list of AccountLists with empty fields.
-// These are designed to have the PrePopulate methods called on them.
-//
-// These are also in the priority order that they should be searched in.
-// As of yet, this is just CsvPure at highest priority. XXX please update when necessary
-func getAllUnpopulated() []parse.AccountList {
-	return []parse.AccountList{
-		&csv_pure.CsvPure{},
-	}
-}
 
 // This takes a file as input, to verify the validity of.
 // This is often nil if no args are given, in which case each individual file type uses its default filename
-func Detect(path *string) parse.AccountList {
+func Detect(path *string) (parse.AccountList, error) {
 	// TODO: this is perhaps bad, as the `.way` header tells you what filetype it is.
 	// TODO: perhaps add an IsPure() method and/or a GetHeaderIndicator() method to each AccountList instance
 	// this would make checks faster, as all the checks are done here
 
-	types := getAllUnpopulated()
-	var err error
-
-	for i, _ := range types {
-		// if this errors, it usually means directory not found
-		if path == nil {
-			err = types[i].PrepopulateDefault()
-		} else {
-			err = types[i].PrepopulateFromFile(*path)
+	if path != nil {
+		if _, err := os.Stat(*path); err != nil { // does not exist
+			return nil, format.EmptyHandedError(fmt.Sprintf("provided path \"%s\" doesn't exist", *path))
 		}
-
-		// henceforth, types[i] is no longer empty, unless err isn't nil
-
-		if err != nil { // i.e. we have no chance at being existing
-			continue
-		}
-
-		if _, err = os.Stat(types[i].GetSourceFilePath()); err != nil { // does not exist
-			continue
-		}
-
-		if !types[i].Validate() { // if is invalid
-			continue
-		}
-
-		return types[i] // found it!
 	}
 
-	// all failed, we got nothing
-	return nil
+	// highest priority is finding the (more secure) .way files.
+	// only if we fail do we switch the plaintext pure files.
+	way, err := tryDetectWay(path)
+	if err == nil {
+		// we found one!
+		return way, nil
+	}
+
+	// if we got here, we failed to detect a .way file, so we fall back to the old pure file format.
+	pure := tryDetectPure(path)
+	if pure != nil {
+		return pure, nil
+	}
+
+	if path != nil {
+		return nil, format.EmptyHandedError(fmt.Sprintf("don't know what to do with provided file \"%s\"", *path))
+	} else {
+		return nil, format.EmptyHandedError("cannot find defaults")
+	}
 }

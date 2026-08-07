@@ -9,16 +9,20 @@ import (
 	"github.com/firefish111/way2fa/detector"
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/internal/ui"
+	"github.com/firefish111/way2fa/manager"
 )
 
 const (
 	VersionMajor = 0
-	VersionMinor = 3
+	VersionMinor = 4
 	VersionPatch = 0
 )
 
 func main() {
 	ver := flag.Bool("version", false, "Prints version")
+	export := flag.String("export", "", "Exports 2FA store to a different store, like so:\n\t-export dest [src]\nAlso necessary to change passwords.")
+	create := flag.Bool("create", false, "Creates a new 2FA store, like so:\n-create [dest]")
+	list := flag.Bool("list", false, "Lists the default files that are present")
 
 	flag.Parse()
 
@@ -29,9 +33,30 @@ func main() {
 		return
 	}
 
+	if *list {
+		manager.List()
+		return
+	}
+
 	var name *string
 	if a := flag.Args(); len(a) > 0 {
 		name = &a[0]
+	}
+
+	if *export != "" {
+		err := manager.Export(name, export)
+		if err != nil {
+			panic(fmt.Errorf("Export failed: %w", err))
+		}
+		return
+	}
+
+	if *create {
+		_, err := manager.Create(name)
+		if err != nil {
+			panic(fmt.Errorf("Create failed: %w", err))
+		}
+		return
 	}
 
 	// deal with the fact that config dir may not be real
@@ -41,9 +66,15 @@ func main() {
 	}
 
 	// store is the automatic detector
-	store := detector.Detect(name)
-	if store == nil {
-		panic(fmt.Errorf("Automatic detection failed, aborting.\n\nHINT: create a file in %s.\n", config.ConfPath))
+	store, err := detector.Detect(name)
+	if err != nil {
+		panic(fmt.Errorf("Automatic detection failed, aborting.\n\n%w\n\nHINT: create a default file in %s.\n", err, config.ConfPath))
+	}
+
+	// load accounts from file
+	err = store.Load()
+	if err != nil {
+		panic(fmt.Errorf("Failed to load store: %w", err))
 	}
 
 	// call the ui
@@ -70,5 +101,12 @@ func main() {
 	ctrller = doneModel.(bubblon.Controller)
 	if ctrller.Err != nil { // when bubblon.Fail is called, the error is put in Err, so it can gracefully exit tea
 		panic(fmt.Errorf("Runtime error during model execution:\n\t%w\n", ctrller.Err))
+	}
+
+	// save accounts to file.
+	// done at last, after ui has exited
+	err = store.Save()
+	if err != nil {
+		panic(fmt.Errorf("Failed to save store: %w", err))
 	}
 }
