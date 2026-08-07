@@ -2,16 +2,19 @@ package creation
 
 import (
 	"fmt"
-	"github.com/firefish111/way2fa/account"
 	"strconv"
 	"strings"
+
+	"github.com/firefish111/way2fa/account"
 )
 
+// ensure key is valid base64, and trim spaces (as most often services give them in space-separated chunks)
 func keyifyKey(inp string) string {
 	return strings.ReplaceAll(strings.ToUpper(inp), " ", "")
 }
 
-func handlifyAcctId(inp string) string { // just in case user is stupid
+// trim initial @ signs from account id, as those are implicit and added later in UI only
+func handlifyAcctId(inp string) string {
 	return strings.TrimLeft(inp, "@")
 }
 
@@ -24,7 +27,7 @@ func validateKey(inp string) error {
 }
 
 func validateInterv(inp string) error {
-	if len(inp) == 0 {
+	if len(inp) == 0 { // if no string given, is valid, as is optional
 		return nil // to stop atoi from throwing all the toys out the pram
 	}
 

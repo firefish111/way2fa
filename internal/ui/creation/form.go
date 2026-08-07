@@ -2,6 +2,7 @@ package creation
 
 import (
 	"github.com/charmbracelet/huh"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 )
 
 func (m *formModel) resetForm() {
@@ -9,32 +10,32 @@ func (m *formModel) resetForm() {
 		huh.NewGroup(
 			huh.NewInput().
 				Key("name").
-				Title("Service name").
+				Title(styles.Header.Render("service name")).
 				Validate(validateService).
 				Placeholder("e.g. google, microsoft"),
 
 			huh.NewInput().
 				Key("acctid").
-				Title("Account name").
+				Title(styles.Header.Render("account name")).
 				Placeholder("e.g. @myusername, myemail@provider.com"),
 
 			huh.NewInput().
 				Key("2fakey").
-				Title("2FA Key").
+				Title(styles.Header.Render("2FA key")).
 				Validate(validateKey).
-				Placeholder("Must contain letters and numbers 2-7 only"),
+				Placeholder("must contain letters and numbers 2-7 only"),
 
 			huh.NewInput().
 				Key("interv").
-				Title("Interval (in seconds)").
+				Title(styles.Header.Render("interval (in seconds)")).
 				Validate(validateInterv).
 				Placeholder("30 (default)"),
 
 			huh.NewConfirm().
 				Key("confirmation").
-				Title("Continue?").
-				Affirmative("Yes, add to list").
-				Negative("No, go back"),
+				Title("continue?").
+				Affirmative("yes, add to list").
+				Negative("no, go back"),
 		),
 	).WithShowHelp(false)
 }
