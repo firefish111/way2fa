@@ -9,6 +9,7 @@ import (
 	"github.com/firefish111/way2fa/detector"
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/internal/ui"
+	"github.com/firefish111/way2fa/manager"
 )
 
 const (
@@ -19,6 +20,9 @@ const (
 
 func main() {
 	ver := flag.Bool("version", false, "Prints version")
+	export := flag.String("export", "", "Exports 2FA store to a different store, like so:\n\t-export dest [src]\nAlso necessary to change passwords.")
+	create := flag.Bool("create", false, "Creates a new 2FA store, like so:\n-create [dest]")
+	list := flag.Bool("list", false, "Lists the default files that are present")
 
 	flag.Parse()
 
@@ -29,9 +33,30 @@ func main() {
 		return
 	}
 
+	if *list {
+		manager.List()
+		return
+	}
+
 	var name *string
 	if a := flag.Args(); len(a) > 0 {
 		name = &a[0]
+	}
+
+	if *export != "" {
+		err := manager.Export(name, export)
+		if err != nil {
+			panic(fmt.Errorf("Export failed: %w", err))
+		}
+		return
+	}
+
+	if *create {
+		_, err := manager.Create(name)
+		if err != nil {
+			panic(fmt.Errorf("Create failed: %w", err))
+		}
+		return
 	}
 
 	// deal with the fact that config dir may not be real

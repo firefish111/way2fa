@@ -148,7 +148,7 @@ func (m passwordModel) View() string {
 	} else {
 		// whether this is first or second entering
 		if m.prev == nil { // prevRendered is ignored, cause it's useless without prev
-			s.WriteString(styles.Title.Render("Enter password: "))
+			s.WriteString(styles.Title.Render(m.title + ": "))
 			s.WriteString(styles.RenderSource(m.acclist.GetSource()))
 		} else {
 			s.WriteString(styles.Title.Render("Confirm password: "))

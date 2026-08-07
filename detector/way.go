@@ -15,15 +15,15 @@ import (
 // all .way files have the same name by default for consistency's sake.
 // exactly what format it uses is dictated by the file itself
 const (
-	defaultWayExt      = "way"
-	defaultWayFilename = "keys" + defaultWayExt
+	DefaultWayExt      = ".way"
+	DefaultWayFilename = "keys" + DefaultWayExt
 )
 
 // This function gets a list of AccountLists with empty fields.
 // These are designed to have the Prepopulate methods called on them.
 //
 // XXX please update when necessary
-func getPossibleWayFormats() map[format.FileTypeId]parse.WayAccountList {
+func GetPossibleWayFormats() map[format.FileTypeId]parse.WayAccountList {
 	return map[format.FileTypeId]parse.WayAccountList{
 		format.Csv: &csv_way.CsvWay{},
 	}
@@ -36,7 +36,7 @@ func tryDetectWay(path_optional *string) (parse.WayAccountList, error) {
 	if path_optional == nil {
 		path = filepath.Join(
 			config.ConfPath,
-			defaultWayFilename,
+			DefaultWayFilename,
 		)
 	} else {
 		path = *path_optional
@@ -69,7 +69,7 @@ func tryDetectWay(path_optional *string) (parse.WayAccountList, error) {
 
 	/* we now have a valid .way file, but we leave decoding it to the GetAccs() function */
 
-	possibilities := getPossibleWayFormats()
+	possibilities := GetPossibleWayFormats()
 	found := possibilities[header.FileType]
 	// a key not found will return the value type's default value, in this case nil
 	if found == nil {

@@ -14,7 +14,7 @@ import (
 // These are also in the priority order that they should be searched in.
 // As of yet, this is just CsvPure at highest priority.
 // XXX please update when necessary
-func getPossiblePureFormats() []parse.PureAccountList {
+func GetPossiblePureFormats() []parse.PureAccountList {
 	return []parse.PureAccountList{
 		&csv_pure.CsvPure{},
 	}
@@ -23,7 +23,7 @@ func getPossiblePureFormats() []parse.PureAccountList {
 // behaves a little bit differently to .way format, as we have to ask each format individually
 // what filename it's looking for.
 func tryDetectPure(path_optional *string) parse.PureAccountList {
-	possibilities := getPossiblePureFormats()
+	possibilities := GetPossiblePureFormats()
 
 	for i, _ := range possibilities {
 		// get filename we're looking for

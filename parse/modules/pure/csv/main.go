@@ -39,3 +39,8 @@ func (c *CsvPure) PrepopulateFromFile(path string, isDefault bool) error {
 func (c *CsvPure) GetDefaultFilename() string {
 	return CsvPureFilename
 }
+
+// buffer gets rewritten every time, nothing to populate
+func (c *CsvPure) PopulateNew() error {
+	return nil
+}

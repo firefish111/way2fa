@@ -48,3 +48,25 @@ func (c *CsvWay) PrepopulateFromFile(path string, isDefault bool) error {
 func (c *CsvWay) GetWayTypeId() format.FileTypeId {
 	return format.Csv
 }
+
+// Used for creating new files
+func (c *CsvWay) PopulateNew() error {
+	// set cryptor
+	var err error
+	c.crypt, err = cryptor.RandomisedAes()
+	if err != nil {
+		return err
+	}
+
+	// set capabilities
+	c.capabilities = config.GetCurrentCapabilities()
+
+	// make header sensible
+	c.updateHeader()
+
+	return nil
+}
+
+func (c *CsvWay) SetPasswordProtected(isPasswordProtected bool) {
+	c.hasPassword = isPasswordProtected
+}

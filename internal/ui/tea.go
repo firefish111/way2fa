@@ -13,23 +13,24 @@ import (
 	"github.com/firefish111/way2fa/internal/ui/password"
 )
 
+func (m model) openPasswordPrompt(title string) (cmd tea.Cmd) {
+	passwordPrompt := password.CreatePasswordPrompt(m.reader, title)
+
+	// send a different command based on whether we need the prompty or not
+	if passwordPrompt != nil { // i.e. there is a password prompt we need to use
+		cmd = bubblon.Open(passwordPrompt)
+	} else {
+		// we have proven above that if there is no password prompt needed, then it must already be decrypted, so we send the message
+		cmd = msgs.SendEncryptor(msgs.DecryptedMsg)
+	}
+
+	return
+}
+
 // Initialise main UI.
 // Checks to see whether
 func (m model) Init() tea.Cmd {
-	passwordPrompt := password.CreatePasswordPrompt(m.reader)
-
-	// this is the message that we want to send.
-	// depends on passwordPrompt's value.
-	var toSend tea.Cmd
-
-	if passwordPrompt != nil { // i.e. there is a password prompt we need to use
-		toSend = bubblon.Open(passwordPrompt)
-	} else {
-		// we have proven above that if there is no password prompt needed, then it must already be decrypted, so we send the message
-		toSend = msgs.SendEncryptor(msgs.DecryptedMsg)
-	}
-
-	return tea.Batch(toSend, msgs.Tick()) // first tick, and whatever we need to send.
+	return tea.Batch(m.openPasswordPrompt("Enter password to decrypt"), msgs.Tick()) // first tick, and whatever we need to send.
 }
 
 // this returns the model itself, and anything we want tea to do
@@ -49,21 +50,7 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 			case "s":
 				m.saveState = saveOngoing
 
-				// TODO: break out into new function
-				passwordPrompt := password.CreatePasswordPrompt(m.reader)
-
-				// this is the message that we want to send.
-				// depends on passwordPrompt's value.
-				var toSend tea.Cmd
-
-				if passwordPrompt != nil { // i.e. there is a password prompt we need to use
-					toSend = bubblon.Open(passwordPrompt)
-				} else {
-					// we have proven above that if there is no password prompt needed, then it must already be decrypted, so we send the message
-					toSend = msgs.SendEncryptor(msgs.DecryptedMsg)
-				}
-
-				return m, toSend
+				return m, m.openPasswordPrompt("Re-enter existing password to save")
 			case "q":
 				// if we want to quit, but have unsaved changes, show the exit prompt
 				switch m.saveState {

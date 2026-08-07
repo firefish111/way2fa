@@ -25,6 +25,7 @@ type passwordModel struct {
 	prevRendered string                // ditto, but a rendered string (for prompt)
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
+	title    string // title of the password prompt
 
 	// so that it refuses input whilst decrypting
 	isDecrypting bool
@@ -42,7 +43,7 @@ const (
 //
 // Can return nil, in which case no password prompt is required: this happens only if the
 // list is already decrypted.
-func CreatePasswordPrompt(acclist parse.AccountList) *passwordModel {
+func CreatePasswordPrompt(acclist parse.AccountList, title string) *passwordModel {
 	// create a textbox
 	textbox := textinput.New()
 	textbox.Focus() // we want it focussed, lest all keypressees will be dropped
@@ -59,6 +60,7 @@ func CreatePasswordPrompt(acclist parse.AccountList) *passwordModel {
 		helpModel:    help.New(),
 		helpDB:       defaultHelp(),
 		isDecrypting: false,
+		title:        title,
 	}
 
 	ret.helpModel.Styles.ShortDesc = styles.Faint

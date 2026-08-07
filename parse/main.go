@@ -73,6 +73,9 @@ type AccountList interface {
 	// If IsPasswordProtected() returns false, this should always return true, as it is prepetually decrypted.
 	// See Decrypt(string) for use.
 	IsDecrypted() bool
+
+	// Creates a new file from scratch, populating fields anew
+	PopulateNew() error
 }
 
 // the other, more specific interfaces
@@ -101,4 +104,7 @@ type WayAccountList interface {
 
 	// Gets the ID assigned to it in the .way file.
 	GetWayTypeId() format.FileTypeId
+
+	// Sets whether the account list is password-protected.
+	SetPasswordProtected(isPasswordProtected bool)
 }
