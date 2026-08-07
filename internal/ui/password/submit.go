@@ -43,8 +43,14 @@ func (m *passwordModel) submit() (*cryptor.PasswordHash, error) {
 		m.prev = &hashed // store current hashed password into a "previous" field
 		m.prevRender()   // render previous text
 
-		// nothing eventful happened
-		return nil, nil
+		if m.doConfirm {
+			// nothing eventful happened
+			return nil, nil
+		} else {
+			// we only want one
+			return m.prev, nil
+		}
+
 	} else if !hashed.Matches(*m.prev) {
 		// if passwords don't match.
 		// we clear prev as well, as we want to reset both initial and confirmation. (the first time could've contained the mistake)

@@ -25,7 +25,7 @@ func Export(src, dest *string) error {
 		return err
 	}
 
-	// load acctouns from source file
+	// load accounts from source file
 	err = srclist.Load()
 	if err != nil {
 		return err
@@ -51,7 +51,6 @@ func Export(src, dest *string) error {
 
 	// TODO: destlist.Decrypt()
 	// store them in new destination
-	// FIXME: null deref of destlist
 	err = destlist.SetAccs(srcAccs)
 	if err != nil {
 		return err

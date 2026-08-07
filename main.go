@@ -68,7 +68,7 @@ func main() {
 	// store is the automatic detector
 	store, err := detector.Detect(name)
 	if err != nil {
-		panic(fmt.Errorf("Automatic detection failed, aborting.\n\n%w\n\nHINT: create a default file in %s.\n", err, config.ConfPath))
+		panic(fmt.Errorf("Automatic detection failed, aborting.\n\n%w\n\nHINT: provide a file, or use -create.\n", err))
 	}
 
 	// load accounts from file

@@ -15,14 +15,18 @@ import (
 
 // tries = how many attempts have failed. starts out at 0
 type passwordModel struct {
-	helpModel    help.Model             // the renderer. i can use self as keymap
-	helpDB       map[string]key.Binding // to pick and choose which helps to use and when
-	acclist      parse.AccountList
-	field        textinput.Model
-	warningOnly  bool // whether to only show a warning and no password
-	tries        uint
+	helpModel   help.Model             // the renderer. i can use self as keymap
+	helpDB      map[string]key.Binding // to pick and choose which helps to use and when
+	acclist     parse.AccountList
+	field       textinput.Model
+	warningOnly bool // whether to only show a warning and no password
+	tries       uint
+
 	prev         *cryptor.PasswordHash // previous password prompt, nil if only on first try
 	prevRendered string                // ditto, but a rendered string (for prompt)
+
+	// whether to ask for confirmation, and ask for the password twice
+	doConfirm bool
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
 	title    string // title of the password prompt
@@ -46,7 +50,7 @@ const (
 //
 // Can return nil, in which case no password prompt is required: this happens only if the
 // list is already decrypted.
-func CreatePasswordPrompt(acclist parse.AccountList, title string) *passwordModel {
+func CreatePasswordPrompt(acclist parse.AccountList, title string, doConfirm bool) *passwordModel {
 	// create a textbox
 	textbox := textinput.New()
 	textbox.Focus() // we want it focussed, lest all keypressees will be dropped
@@ -64,6 +68,7 @@ func CreatePasswordPrompt(acclist parse.AccountList, title string) *passwordMode
 		helpDB:       defaultHelp(),
 		isDecrypting: false,
 		title:        title,
+		doConfirm:    doConfirm,
 	}
 
 	ret.helpModel.Styles.ShortDesc = styles.Faint

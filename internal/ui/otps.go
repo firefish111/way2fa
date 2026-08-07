@@ -68,7 +68,7 @@ func (m model) getTable() *table.Table {
 			if err == nil {
 				skey = fmt.Sprintf("[%03d %03d]", k/1000, k%1000)
 			} else {
-				skey = " ERROR " // 7 chars
+				skey = "[ ERROR ]" // 9 chars
 			}
 
 			otps[i] = append(otps[i], skey)

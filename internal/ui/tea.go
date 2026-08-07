@@ -14,7 +14,7 @@ import (
 )
 
 func (m model) openPasswordPrompt(title string) (cmd tea.Cmd) {
-	passwordPrompt := password.CreatePasswordPrompt(m.reader, title)
+	passwordPrompt := password.CreatePasswordPrompt(m.reader, title, false)
 
 	// send a different command based on whether we need the prompty or not
 	if passwordPrompt != nil { // i.e. there is a password prompt we need to use

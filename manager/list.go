@@ -11,7 +11,10 @@ import (
 func List() {
 	fmt.Println("Available default stores, listed in order of priority.\n\n" + disclaimer)
 
-	for i, store := range manager.GetPossibilities() {
+	possibilities := manager.GetPossibilities()
+	//	rows := make([][]string, len(possibilities))
+	for i, store := range possibilities {
 		fmt.Printf("\t[%d]: %s\n", i+1, reflect.TypeOf(store).Elem().Name())
 	}
+
 }

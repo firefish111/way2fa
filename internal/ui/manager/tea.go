@@ -99,7 +99,7 @@ func (m managerModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				// populate new
 				m.selected.PopulateNew()
 
-				model := password.CreatePasswordPrompt(m.selected, "Set a password")
+				model := password.CreatePasswordPrompt(m.selected, "Set a password", true)
 				return m, bubblon.Open(model)
 			}
 		case "n":
