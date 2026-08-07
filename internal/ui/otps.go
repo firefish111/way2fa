@@ -95,7 +95,7 @@ func (m model) getTable() *table.Table {
 			style = style.Margin(0, 2)
 
 			// if recently added
-			if m.dirty != nil && row == *m.dirty {
+			if m.selected != nil && row == *m.selected {
 				style = style.Underline(true)
 
 				if col == 0 { // highlighting.

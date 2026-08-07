@@ -15,7 +15,12 @@ import (
 
 // simple, one line help. used to show basic functions
 func (m model) ShortHelp() []key.Binding {
-	if m.dirty == nil {
+	if m.saveState == tryingExit {
+		return []key.Binding{
+			m.helpDB["forceexit"],
+			m.helpDB["goback"],
+		}
+	} else if m.selected == nil {
 		var helps []key.Binding
 		if m.reader.IsPasswordProtected() {
 			helps = []key.Binding{
@@ -94,6 +99,14 @@ func defaultHelp() map[string]key.Binding {
 		"quitfalse": key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
 			key.WithHelp(styles.None.Render("q"), styles.Discard.Render("quit + discard")),
+		),
+		"forceexit": key.NewBinding(
+			key.WithKeys("y"),
+			key.WithHelp(styles.None.Render("y"), styles.Discard.Render("force quit without saving")),
+		),
+		"goback": key.NewBinding(
+			key.WithKeys("n"),
+			key.WithHelp(styles.None.Render("n"), "go back"),
 		),
 	}
 }
