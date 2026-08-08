@@ -19,6 +19,11 @@ func (c *CsvPure) GetAccs() ([]account.Account, error) {
 
 	var out []account.Account
 
+	// empty guard
+	if len(c.buffer) == 0 {
+		return out, nil
+	}
+
 	if err := gocsv.UnmarshalString(c.buffer, &out); err != nil {
 		return nil, err
 	}

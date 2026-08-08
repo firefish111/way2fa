@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/donderom/bubblon"
 	"github.com/firefish111/way2fa/detector"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/internal/ui/manager"
 	"github.com/firefish111/way2fa/parse"
 )
@@ -67,6 +68,8 @@ func Export(src, dest *string) error {
 
 // Create a new 2FA store with the given name.
 func Create(name *string) (parse.AccountList, error) {
+	fmt.Println(styles.Supplement.Render(disclaimer))
+
 	var reader parse.AccountList
 
 	ctrller, err := bubblon.New(manager.CreateCreatorModel(name, &reader))

@@ -88,9 +88,8 @@ func (m model) getTable() *table.Table {
 			style := lipgloss.NewStyle().Bold(true)
 
 			if row == -1 {
-				style = style.
+				return style.
 					Foreground(lipgloss.Color("208"))
-				return style
 			}
 
 			//   0

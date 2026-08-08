@@ -2,7 +2,10 @@
 package manager
 
 import (
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/firefish111/way2fa/detector"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
 )
 
@@ -32,19 +35,26 @@ const (
 
 type managerModel struct {
 	possibilities []parse.AccountList
-	selected      parse.AccountList
+	selected      int
 	destination   *parse.AccountList
 	filename      *string
 	phase         managerPhase
+	helpModel     help.Model
+	helpDB        map[string]key.Binding
 }
 
 func CreateCreatorModel(name *string, destination *parse.AccountList) *managerModel {
 	ret := managerModel{
-		selected:    nil,
+		selected:    0,
 		destination: destination,
 		filename:    name,
 		phase:       selectStore,
+		helpModel:   help.New(),
+		helpDB:      defaultHelp(),
 	}
+
+	ret.helpModel.Styles.ShortDesc = styles.Faint
+	ret.helpModel.Styles.FullDesc = styles.Faint
 
 	ret.possibilities = GetPossibilities()
 

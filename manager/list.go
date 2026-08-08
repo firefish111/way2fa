@@ -2,19 +2,15 @@ package manager
 
 import (
 	"fmt"
-	"reflect"
 
-	"github.com/firefish111/way2fa/internal/ui/manager"
+	"github.com/firefish111/way2fa/internal/ui/common/styles"
+	managerUi "github.com/firefish111/way2fa/internal/ui/manager"
 )
 
 // list all available stores
 func List() {
-	fmt.Println("Available default stores, listed in order of priority.\n\n" + disclaimer)
+	fmt.Println(styles.SidePad.Render("\nAvailable default stores, listed in order of priority.\nFor .way types, its corresponding ID number is also shown."))
 
-	possibilities := manager.GetPossibilities()
-	//	rows := make([][]string, len(possibilities))
-	for i, store := range possibilities {
-		fmt.Printf("\t[%d]: %s\n", i+1, reflect.TypeOf(store).Elem().Name())
-	}
-
+	tab := managerUi.MakeListTable(nil)
+	fmt.Println(tab)
 }

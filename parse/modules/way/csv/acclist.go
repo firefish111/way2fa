@@ -82,7 +82,7 @@ func (c *CsvWay) SetAccs(to_set []account.Account) error {
 
 func (c *CsvWay) GetSource() (parse.DataSource, string) {
 	if c.isDefaultStore {
-		return parse.NamedSource, "<default CSV with AES-256>"
+		return parse.NamedSource, "<default AES-256 CSV>"
 	} else {
 		return parse.FileSource, filepath.Base(c.path)
 	}
