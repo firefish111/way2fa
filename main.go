@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/donderom/bubblon"
+	tea "charm.land/bubbletea/v2"
+	"github.com/donderom/bubblon/v2"
 	"github.com/firefish111/way2fa/detector"
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/internal/ui"
@@ -88,7 +88,7 @@ func main() {
 		panic(err)
 	}
 
-	prog := tea.NewProgram(ctrller, tea.WithAltScreen())
+	prog := tea.NewProgram(ctrller)
 	doneModel, err := prog.Run() // as for why `doneModel`, see below
 
 	if err != nil { // do the running

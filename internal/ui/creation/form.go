@@ -1,7 +1,7 @@
 package creation
 
 import (
-	"github.com/charmbracelet/huh"
+	"charm.land/huh/v2"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 )
 

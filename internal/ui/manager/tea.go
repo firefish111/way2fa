@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/donderom/bubblon"
+	tea "charm.land/bubbletea/v2"
+	"github.com/donderom/bubblon/v2"
 	"github.com/firefish111/way2fa/detector"
 	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/internal/ui/common/msgs"
@@ -63,7 +63,7 @@ func (m managerModel) Init() tea.Cmd {
 
 func (m managerModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	switch event := event.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch event.String() {
 		case "q":
 			if m.phase != waitingPassword {
@@ -142,7 +142,7 @@ func (m managerModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m managerModel) View() string {
+func (m managerModel) View() tea.View {
 	var s strings.Builder
 
 	switch m.phase {
@@ -163,5 +163,5 @@ func (m managerModel) View() string {
 
 	s.WriteRune('\n')
 
-	return s.String()
+	return tea.NewView(s.String())
 }

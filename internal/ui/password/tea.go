@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/donderom/bubblon"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"github.com/donderom/bubblon/v2"
 
 	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/internal/ui/common/msgs"
@@ -23,7 +23,7 @@ func (m passwordModel) Init() tea.Cmd {
 
 func (m passwordModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	switch event := event.(type) {
-	case tea.KeyMsg: // handle keypress
+	case tea.KeyPressMsg: // handle keypress
 		if m.isDecrypting {
 			// please do NOT submit again, or handle any other keypresses for that matter, if already submitted
 			break
@@ -131,7 +131,7 @@ const (
 	spinningWheel = "|/-\\"
 )
 
-func (m passwordModel) View() string {
+func (m passwordModel) View() tea.View {
 	var s strings.Builder
 
 	if m.isDecrypting {
@@ -175,5 +175,5 @@ func (m passwordModel) View() string {
 	helpview := m.helpModel.View(m) // using self as a help model to access internal state
 	s.WriteString(styles.SidePad.Render(helpview))
 
-	return styles.Box.Render(s.String())
+	return tea.NewView(styles.Box.Render(s.String()))
 }

@@ -1,8 +1,8 @@
 package ui
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/donderom/bubblon"
+	tea "charm.land/bubbletea/v2"
+	"github.com/donderom/bubblon/v2"
 
 	"slices"
 	"strings"
@@ -37,7 +37,7 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	// event is whatever tea wants us to respond to, we need to see what it is
 	switch event := event.(type) {
-	case tea.KeyMsg: // handle keypress
+	case tea.KeyPressMsg: // handle keypress
 		if m.saveState == tryingExit {
 			switch event.String() {
 			case "y":
@@ -132,7 +132,7 @@ func (m model) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // Spit it out
-func (m model) View() string {
+func (m model) View() tea.View {
 	var s strings.Builder
 
 	s.WriteRune('\n')
@@ -161,5 +161,5 @@ func (m model) View() string {
 
 	s.WriteRune('\n')
 
-	return s.String()
+	return tea.NewView(s.String())
 }
