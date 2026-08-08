@@ -81,5 +81,7 @@ func (m formModel) View() tea.View {
 
 	s.WriteString(styles.Spaced.Render(m.modifiedHelp()))
 
-	return tea.NewView(s.String())
+	v := tea.NewView(s.String())
+	v.AltScreen = true
+	return v
 }

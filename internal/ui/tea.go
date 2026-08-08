@@ -14,7 +14,7 @@ import (
 )
 
 func (m model) openPasswordPrompt(title string) (cmd tea.Cmd) {
-	passwordPrompt := password.CreatePasswordPrompt(m.reader, title, false)
+	passwordPrompt := password.CreatePasswordPrompt(m.reader, title, false, true)
 
 	// send a different command based on whether we need the prompty or not
 	if passwordPrompt != nil { // i.e. there is a password prompt we need to use
@@ -161,5 +161,7 @@ func (m model) View() tea.View {
 
 	s.WriteRune('\n')
 
-	return tea.NewView(s.String())
+	v := tea.NewView(s.String())
+	v.AltScreen = true
+	return v
 }

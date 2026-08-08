@@ -175,5 +175,7 @@ func (m passwordModel) View() tea.View {
 	helpview := m.helpModel.View(m) // using self as a help model to access internal state
 	s.WriteString(styles.SidePad.Render(helpview))
 
-	return tea.NewView(styles.Box.Render(s.String()))
+	v := tea.NewView(styles.Box.Render(s.String()))
+	v.AltScreen = m.fullScreen
+	return v
 }
