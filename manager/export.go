@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/donderom/bubblon"
+	tea "charm.land/bubbletea/v2"
+	"github.com/donderom/bubblon/v2"
 	"github.com/firefish111/way2fa/detector"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/internal/ui/manager"

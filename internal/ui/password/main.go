@@ -5,9 +5,9 @@
 package password
 
 import (
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textinput"
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/textinput"
 	"github.com/firefish111/way2fa/cryptor"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"
@@ -55,7 +55,7 @@ func CreatePasswordPrompt(acclist parse.AccountList, title string, doConfirm boo
 	textbox := textinput.New()
 	textbox.Focus() // we want it focussed, lest all keypressees will be dropped
 	textbox.CharLimit = PasswordMaxLen
-	textbox.Width = PasswordMaxLen
+
 	textbox.EchoMode = textinput.EchoPassword
 
 	// password model

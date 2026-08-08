@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/huh"
-	"github.com/donderom/bubblon"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/huh/v2"
+	"github.com/donderom/bubblon/v2"
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/internal/ui/common/msgs"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
@@ -19,7 +19,7 @@ func (m formModel) Init() tea.Cmd {
 
 func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	switch event := event.(type) {
-	case tea.KeyMsg: // handle keypress
+	case tea.KeyPressMsg: // handle keypress
 		switch event.String() {
 		case "esc", "ctrl+c": // ctrl+c is defined, to stop it reaching the form itself, which leads to the form being inescapable
 			return m, bubblon.Close
@@ -66,7 +66,7 @@ func (m formModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m formModel) View() string {
+func (m formModel) View() tea.View {
 	var s strings.Builder
 
 	s.WriteRune('\n')
@@ -81,5 +81,5 @@ func (m formModel) View() string {
 
 	s.WriteString(styles.Spaced.Render(m.modifiedHelp()))
 
-	return s.String()
+	return tea.NewView(s.String())
 }

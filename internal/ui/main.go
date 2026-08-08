@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
 	"github.com/firefish111/way2fa/account"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/parse"

@@ -2,7 +2,7 @@
 package msgs
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"time"
 

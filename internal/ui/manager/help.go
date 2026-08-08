@@ -1,7 +1,7 @@
 package manager
 
 import (
-	"github.com/charmbracelet/bubbles/key"
+	"charm.land/bubbles/v2/key"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 )
 
