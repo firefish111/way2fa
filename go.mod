@@ -3,10 +3,10 @@ module github.com/firefish111/way2fa
 go 1.26.5
 
 require (
-	charm.land/bubbles/v2 v2.0.0
-	charm.land/bubbletea/v2 v2.0.0
-	charm.land/huh/v2 v2.0.0
-	charm.land/lipgloss/v2 v2.0.0
+	charm.land/bubbles/v2 v2.1.1
+	charm.land/bubbletea/v2 v2.0.8
+	charm.land/huh/v2 v2.0.3
+	charm.land/lipgloss/v2 v2.0.5
 	github.com/donderom/bubblon/v2 v2.0.0
 	github.com/gocarina/gocsv v0.0.0-20260628180327-50907998929c
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
@@ -18,7 +18,7 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/catppuccin/go v0.3.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20260803092147-8b693049ce2a // indirect
 	github.com/charmbracelet/x/ansi v0.11.7 // indirect
 	github.com/charmbracelet/x/exp/ordered v0.1.0 // indirect
 	github.com/charmbracelet/x/exp/strings v0.1.0 // indirect
