@@ -2,60 +2,15 @@ package manager
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/donderom/bubblon/v2"
-	"github.com/firefish111/way2fa/detector"
-	"github.com/firefish111/way2fa/internal/config"
 	"github.com/firefish111/way2fa/internal/ui/common/msgs"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
 	"github.com/firefish111/way2fa/internal/ui/password"
 	"github.com/firefish111/way2fa/parse"
 )
-
-// returns whether the name is a default or not and an error
-func (m *managerModel) matchFilename() (fname string, isDefault bool, err error) {
-	// deal with filename
-
-	if m.filename != nil && *m.filename != "" {
-		isDefault = false
-		fname, err = filepath.Abs(*m.filename)
-		if err != nil {
-			return fname, false, err
-		}
-	} else if pure, ok := m.possibilities[m.selected].(parse.PureAccountList); ok {
-		isDefault = true
-		fname = filepath.Join(
-			config.ConfPath,
-			pure.GetDefaultFilename(),
-		)
-	} else if _, ok := m.possibilities[m.selected].(parse.WayAccountList); ok {
-		isDefault = true
-		fname = filepath.Join(
-			config.ConfPath,
-			detector.DefaultWayFilename,
-		)
-
-		m.filename = &fname
-	} else {
-		return fname, isDefault, fmt.Errorf("Can't match account list to file")
-	}
-
-	f, err := os.OpenFile(fname, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0666)
-	if err != nil {
-		if os.IsExist(err) {
-			return fname, isDefault, fmt.Errorf("File %s already exists: %w", fname, err)
-		}
-
-		return fname, isDefault, err
-	}
-	f.Close() // leave it to the interface itself to do that
-
-	return
-}
 
 func (m managerModel) Init() tea.Cmd {
 	return nil
@@ -114,7 +69,7 @@ func (m managerModel) Update(event tea.Msg) (tea.Model, tea.Cmd) {
 				// populate new
 				m.possibilities[m.selected].PopulateNew()
 
-				model := password.CreatePasswordPrompt(m.possibilities[m.selected], "Set a password", true)
+				model := password.CreatePasswordPrompt(m.possibilities[m.selected], "Set a password", true, false)
 				return m, bubblon.Open(model)
 			}
 		case "n":

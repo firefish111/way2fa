@@ -8,7 +8,7 @@ import (
 	"github.com/donderom/bubblon/v2"
 	"github.com/firefish111/way2fa/detector"
 	"github.com/firefish111/way2fa/internal/ui/common/styles"
-	"github.com/firefish111/way2fa/internal/ui/manager"
+	managerUi "github.com/firefish111/way2fa/internal/ui/manager"
 	"github.com/firefish111/way2fa/parse"
 )
 
@@ -70,9 +70,16 @@ func Export(src, dest *string) error {
 func Create(name *string) (parse.AccountList, error) {
 	fmt.Println(styles.Supplement.Render(disclaimer))
 
+	// early exit if file already exists - don't want to risk overwriting anything
+	if name != nil && *name != "" {
+		if err := managerUi.FailOnExist(*name); err != nil {
+			return nil, err
+		}
+	}
+
 	var reader parse.AccountList
 
-	ctrller, err := bubblon.New(manager.CreateCreatorModel(name, &reader))
+	ctrller, err := bubblon.New(managerUi.CreateCreatorModel(name, &reader))
 	if err != nil {
 		panic(err)
 	}

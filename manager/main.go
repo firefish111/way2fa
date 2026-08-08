@@ -5,4 +5,4 @@ package manager
 
 // disclaimer telling people to use .way formats
 const disclaimer = `.way formats, which can be password-protected, are much more secure than their 'pure' counterparts, which are always plaintext.
-For maximum security, prefer to use .way formats with passwords.`
+For maximum security, prefer .way formats with passwords.`

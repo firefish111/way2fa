@@ -26,7 +26,8 @@ type passwordModel struct {
 	prevRendered string                // ditto, but a rendered string (for prompt)
 
 	// whether to ask for confirmation, and ask for the password twice
-	doConfirm bool
+	doConfirm  bool
+	fullScreen bool
 
 	supplMsg string // supplementary message, to be shown beneath the password prompt
 	title    string // title of the password prompt
@@ -50,7 +51,7 @@ const (
 //
 // Can return nil, in which case no password prompt is required: this happens only if the
 // list is already decrypted.
-func CreatePasswordPrompt(acclist parse.AccountList, title string, doConfirm bool) *passwordModel {
+func CreatePasswordPrompt(acclist parse.AccountList, title string, doConfirm bool, fullScreen bool) *passwordModel {
 	// create a textbox
 	textbox := textinput.New()
 	textbox.Focus() // we want it focussed, lest all keypressees will be dropped
